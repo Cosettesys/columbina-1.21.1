@@ -1,17 +1,17 @@
 {
 	"schemaVersion": 1,
 	"id": "columbina",
-	"version": "${version}",
+	"version": "1.0",
 	"name": "Columbina",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Système de jetons/points par équipe.",
 	"authors": [
-		"Me!"
+		"Cosettesys"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/columbina/icon.png",
 	"environment": "*",
 	"entrypoints": {
