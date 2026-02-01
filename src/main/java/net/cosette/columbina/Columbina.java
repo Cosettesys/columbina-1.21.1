@@ -1,5 +1,6 @@
 package net.cosette.columbina;
 
+import net.cosette.columbina.command.ColumbinaCommands;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -14,5 +15,6 @@ public class Columbina implements ModInitializer {
 	public void onInitialize() {
 
 		LOGGER.info("Columbina charge!");
+		ColumbinaCommands.register();
 	}
 }
