@@ -1,6 +1,7 @@
 package net.cosette.columbina;
 
 import net.cosette.columbina.command.ColumbinaCommands;
+import net.cosette.columbina.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -25,5 +26,8 @@ public class Columbina implements ModInitializer {
 			TeamManager.getInstance().init(world);    // initialise le TeamManager avec ce monde
 			System.out.println("TeamManager initialisé !");
 		});
+
+		// Register les items
+		ModItems.registerItems();
 	}
 }
