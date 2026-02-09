@@ -13,11 +13,9 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -29,18 +27,12 @@ public class ColumbinaCommands {
                         registerCommands(dispatcher)
         );
     }
-
     private static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
-
         dispatcher.register(
                 literal("columbina")
-                        .requires(source -> source.hasPermissionLevel(2)) // Require OP level 2
                         .then(
                                 literal("team")
-
-                                        /* =========================
-                                           /columbina team create <n>
-                                           ========================= */
+                                        .requires(source -> source.hasPermissionLevel(4))
                                         .then(
                                                 literal("create")
                                                         .then(
@@ -48,7 +40,6 @@ public class ColumbinaCommands {
                                                                         .executes(context -> {
                                                                             String name = StringArgumentType.getString(context, "name");
                                                                             boolean success = TeamManager.getInstance().createTeam(name);
-
                                                                             if (success) {
                                                                                 context.getSource().sendFeedback(
                                                                                         () -> Text.literal("§aÉquipe créée : " + name),
@@ -63,10 +54,6 @@ public class ColumbinaCommands {
                                                                         })
                                                         )
                                         )
-
-                                        /* =========================
-                                           /columbina team join <team> <player>
-                                           ========================= */
                                         .then(
                                                 literal("join")
                                                         .then(
@@ -76,9 +63,7 @@ public class ColumbinaCommands {
                                                                                         .executes(context -> {
                                                                                             String teamName = StringArgumentType.getString(context, "team");
                                                                                             ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "player");
-
                                                                                             boolean success = TeamManager.getInstance().joinTeam(player, teamName);
-
                                                                                             if (success) {
                                                                                                 context.getSource().sendFeedback(
                                                                                                         () -> Text.literal("§a" + player.getName().getString() + " a rejoint l'équipe " + teamName),
@@ -94,10 +79,6 @@ public class ColumbinaCommands {
                                                                         )
                                                         )
                                         )
-
-                                        /* =========================
-                                           /columbina team leave <player>
-                                           ========================= */
                                         .then(
                                                 literal("leave")
                                                         .then(
@@ -105,7 +86,6 @@ public class ColumbinaCommands {
                                                                         .executes(context -> {
                                                                             ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "player");
                                                                             boolean success = TeamManager.getInstance().leaveTeam(player);
-
                                                                             if (success) {
                                                                                 context.getSource().sendFeedback(
                                                                                         () -> Text.literal("§e" + player.getName().getString() + " a quitté son équipe."),
@@ -120,16 +100,11 @@ public class ColumbinaCommands {
                                                                         })
                                                         )
                                         )
-
-                                        /* =========================
-                                           /columbina team list
-                                           ========================= */
                                         .then(
                                                 literal("list")
                                                         .executes(context -> {
                                                             TeamManager tm = TeamManager.getInstance();
                                                             Set<String> teams = tm.getAllTeams();
-
                                                             if (teams.isEmpty()) {
                                                                 context.getSource().sendFeedback(
                                                                         () -> Text.literal("§eAucune équipe n'existe pour le moment."),
@@ -137,12 +112,10 @@ public class ColumbinaCommands {
                                                                 );
                                                                 return 1;
                                                             }
-
                                                             context.getSource().sendFeedback(
                                                                     () -> Text.literal("§6=== Liste des équipes ==="),
                                                                     false
                                                             );
-
                                                             for (String team : teams) {
                                                                 int points = tm.getPoints(team);
                                                                 int memberCount = tm.getTeamMembers(team).size();
@@ -151,14 +124,9 @@ public class ColumbinaCommands {
                                                                         false
                                                                 );
                                                             }
-
                                                             return 1;
                                                         })
                                         )
-
-                                        /* =========================
-                                           /columbina team info <team>
-                                           ========================= */
                                         .then(
                                                 literal("info")
                                                         .then(
@@ -166,17 +134,14 @@ public class ColumbinaCommands {
                                                                         .executes(context -> {
                                                                             String teamName = StringArgumentType.getString(context, "team");
                                                                             TeamManager tm = TeamManager.getInstance();
-
                                                                             if (!tm.teamExists(teamName)) {
                                                                                 context.getSource().sendError(
                                                                                         Text.literal("§cCette équipe n'existe pas.")
                                                                                 );
                                                                                 return 0;
                                                                             }
-
                                                                             int points = tm.getPoints(teamName);
                                                                             List<UUID> memberUUIDs = tm.getTeamMembers(teamName);
-
                                                                             context.getSource().sendFeedback(
                                                                                     () -> Text.literal("§6=== " + teamName + " ==="),
                                                                                     false
@@ -185,7 +150,6 @@ public class ColumbinaCommands {
                                                                                     () -> Text.literal("§eNombre de points : §a" + points),
                                                                                     false
                                                                             );
-
                                                                             if (memberUUIDs.isEmpty()) {
                                                                                 context.getSource().sendFeedback(
                                                                                         () -> Text.literal("§eMembres : §7Aucun"),
@@ -195,10 +159,8 @@ public class ColumbinaCommands {
                                                                                 StringBuilder members = new StringBuilder("§eMembres : §b");
                                                                                 for (int i = 0; i < memberUUIDs.size(); i++) {
                                                                                     UUID uuid = memberUUIDs.get(i);
-
                                                                                     ServerPlayerEntity player = context.getSource().getServer().getPlayerManager().getPlayer(uuid);
                                                                                     String playerName;
-
                                                                                     if (player != null) {
                                                                                         playerName = player.getName().getString();
                                                                                     } else {
@@ -209,7 +171,6 @@ public class ColumbinaCommands {
                                                                                             playerName = uuid.toString();
                                                                                         }
                                                                                     }
-
                                                                                     members.append(playerName);
                                                                                     if (i < memberUUIDs.size() - 1) {
                                                                                         members.append("§7, §b");
@@ -221,15 +182,10 @@ public class ColumbinaCommands {
                                                                                         false
                                                                                 );
                                                                             }
-
                                                                             return 1;
                                                                         })
                                                         )
                                         )
-
-                                        /* =========================
-                                           /columbina team color set <team> <color>
-                                           ========================= */
                                         .then(
                                                 literal("color")
                                                         .then(
@@ -262,14 +218,12 @@ public class ColumbinaCommands {
                                                                                                             String team = StringArgumentType.getString(ctx, "team");
                                                                                                             String colorName = StringArgumentType.getString(ctx, "color");
                                                                                                             TeamManager tm = TeamManager.getInstance();
-
                                                                                                             if (!tm.teamExists(team)) {
                                                                                                                 ctx.getSource().sendError(
                                                                                                                         Text.literal("§cCette équipe n'existe pas.")
                                                                                                                 );
                                                                                                                 return 0;
                                                                                                             }
-
                                                                                                             Formatting color = Formatting.byName(colorName.toLowerCase());
                                                                                                             if (color == null || !color.isColor()) {
                                                                                                                 ctx.getSource().sendError(
@@ -277,12 +231,8 @@ public class ColumbinaCommands {
                                                                                                                 );
                                                                                                                 return 0;
                                                                                                             }
-
                                                                                                             tm.setTeamColor(team, color);
-
-                                                                                                            // Rafraîchir les scoreboards après changement de couleur
                                                                                                             ScoreboardManager.getInstance().updateAllScoreboards();
-
                                                                                                             ctx.getSource().sendFeedback(
                                                                                                                     () -> Text.literal("§eCouleur de l'équipe " + team + " définie à ").append(Text.literal(colorName).formatted(color)),
                                                                                                                     true
@@ -294,10 +244,6 @@ public class ColumbinaCommands {
                                                                         )
                                                         )
                                         )
-
-                                        /* =========================
-                                           /columbina team points ...
-                                           ========================= */
                                         .then(
                                                 literal("points")
 
@@ -309,12 +255,10 @@ public class ColumbinaCommands {
                                                                                         .executes(ctx -> {
                                                                                             String team = StringArgumentType.getString(ctx, "team");
                                                                                             TeamManager tm = TeamManager.getInstance();
-
                                                                                             if (!tm.teamExists(team)) {
                                                                                                 ctx.getSource().sendError(Text.literal("§cCette équipe n'existe pas."));
                                                                                                 return 0;
                                                                                             }
-
                                                                                             int points = tm.getPoints(team);
                                                                                             ctx.getSource().sendFeedback(
                                                                                                     () -> Text.literal("§eL'équipe " + team + " a §a" + points + " §epoints"),
@@ -324,8 +268,6 @@ public class ColumbinaCommands {
                                                                                         })
                                                                         )
                                                         )
-
-                                                        /* /columbina team points add <team> <value> */
                                                         .then(
                                                                 literal("add")
                                                                         .then(
@@ -341,20 +283,16 @@ public class ColumbinaCommands {
                                                                                                                 ctx.getSource().sendError(Text.literal("§cImpossible d'ajouter des points (équipe inexistante)."));
                                                                                                                 return 0;
                                                                                                             }
-
                                                                                                             ctx.getSource().sendFeedback(
                                                                                                                     () -> Text.literal("§a+" + value + " §epoints pour l'équipe " + team),
                                                                                                                     true
                                                                                                             );
-                                                                                                            // Rafraîchir les scoreboards après modification des points
                                                                                                             ScoreboardManager.getInstance().updateAllScoreboards();
                                                                                                             return 1;
                                                                                                         })
                                                                                         )
                                                                         )
                                                         )
-
-                                                        /* /columbina team points set <team> <value> */
                                                         .then(
                                                                 literal("set")
                                                                         .then(
@@ -365,17 +303,14 @@ public class ColumbinaCommands {
                                                                                                             String team = StringArgumentType.getString(ctx, "team");
                                                                                                             int value = IntegerArgumentType.getInteger(ctx, "value");
                                                                                                             TeamManager tm = TeamManager.getInstance();
-
                                                                                                             if (!tm.setPoints(team, value)) {
                                                                                                                 ctx.getSource().sendError(Text.literal("§cImpossible de définir les points (équipe inexistante)."));
                                                                                                                 return 0;
                                                                                                             }
-
                                                                                                             ctx.getSource().sendFeedback(
                                                                                                                     () -> Text.literal("§ePoints de l'équipe " + team + " définis à §a" + value),
                                                                                                                     true
                                                                                                             );
-                                                                                                            // Rafraîchir les scoreboards après modification des points
                                                                                                             ScoreboardManager.getInstance().updateAllScoreboards();
                                                                                                             return 1;
                                                                                                         })
@@ -384,14 +319,9 @@ public class ColumbinaCommands {
                                                         )
                                         )
                         )
-
-                        /* =========================
-                           /columbina scoreboard ...
-                           ========================= */
                         .then(
                                 literal("scoreboard")
-
-                                        /* /columbina scoreboard spawn <name> <x> <y> <z> <team|list> */
+                                        .requires(source -> source.hasPermissionLevel(4))
                                         .then(
                                                 literal("spawn")
                                                         .then(
@@ -410,10 +340,8 @@ public class ColumbinaCommands {
                                                                                                                                             double y = DoubleArgumentType.getDouble(ctx, "y");
                                                                                                                                             double z = DoubleArgumentType.getDouble(ctx, "z");
                                                                                                                                             String teamOrList = StringArgumentType.getString(ctx, "teamOrList");
-
                                                                                                                                             ScoreboardManager sm = ScoreboardManager.getInstance();
                                                                                                                                             boolean success;
-
                                                                                                                                             if ("list".equalsIgnoreCase(teamOrList)) {
                                                                                                                                                 success = sm.spawnListScoreboard(name, x, y, z);
                                                                                                                                                 if (success) {
@@ -439,7 +367,6 @@ public class ColumbinaCommands {
                                                                                                                                                     );
                                                                                                                                                 }
                                                                                                                                             }
-
                                                                                                                                             return success ? 1 : 0;
                                                                                                                                         })
                                                                                                                         )
@@ -448,8 +375,6 @@ public class ColumbinaCommands {
                                                                         )
                                                         )
                                         )
-
-                                        /* /columbina scoreboard delete <name> */
                                         .then(
                                                 literal("delete")
                                                         .then(
@@ -457,9 +382,7 @@ public class ColumbinaCommands {
                                                                         .executes(ctx -> {
                                                                             String name = StringArgumentType.getString(ctx, "name");
                                                                             ScoreboardManager sm = ScoreboardManager.getInstance();
-
                                                                             boolean success = sm.deleteScoreboard(name);
-
                                                                             if (success) {
                                                                                 ctx.getSource().sendFeedback(
                                                                                         () -> Text.literal("§eScoreboard '" + name + "' supprimé."),
@@ -470,16 +393,13 @@ public class ColumbinaCommands {
                                                                                         Text.literal("§cAucun scoreboard avec ce nom n'existe.")
                                                                                 );
                                                                             }
-
                                                                             return success ? 1 : 0;
                                                                         })
                                                         )
                                         )
-                                        /* /columbina scoreboard refresh [name] */
                                         .then(
                                                 literal("refresh")
                                                         .executes(ctx -> {
-                                                            // Rafraîchir tous les scoreboards
                                                             ScoreboardManager.getInstance().updateAllScoreboards();
                                                             ctx.getSource().sendFeedback(
                                                                     () -> Text.literal("§aTous les scoreboards ont été rafraîchis."),
@@ -490,12 +410,9 @@ public class ColumbinaCommands {
                                                         .then(
                                                                 argument("name", StringArgumentType.word())
                                                                         .executes(ctx -> {
-                                                                            // Rafraîchir un scoreboard spécifique
                                                                             String name = StringArgumentType.getString(ctx, "name");
                                                                             ScoreboardManager sm = ScoreboardManager.getInstance();
-
                                                                             boolean success = sm.updateScoreboard(name);
-
                                                                             if (success) {
                                                                                 ctx.getSource().sendFeedback(
                                                                                         () -> Text.literal("§eScoreboard '" + name + "' rafraîchi."),
@@ -506,7 +423,6 @@ public class ColumbinaCommands {
                                                                                         Text.literal("§cAucun scoreboard avec ce nom n'existe.")
                                                                                 );
                                                                             }
-
                                                                             return success ? 1 : 0;
                                                                         })
                                                         )
