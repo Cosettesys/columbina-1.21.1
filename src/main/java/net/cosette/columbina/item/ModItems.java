@@ -1,6 +1,7 @@
 package net.cosette.columbina.item;
 
 import net.cosette.columbina.Columbina;
+import net.cosette.columbina.scoreboard.ScoreboardManager;
 import net.cosette.columbina.team.TeamManager;
 
 import net.minecraft.item.Item;
@@ -17,6 +18,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.text.Text;
 
 public class ModItems {
+    // Déclaration du Token
     public static final Item TOKEN = new Item(new Item.Settings()) {
         @Override
         public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
@@ -28,9 +30,13 @@ public class ModItems {
             return TypedActionResult.pass(stack);
         }
     };
+
+    // Enregistrement de l'item
     public static void registerItems() {
         Registry.register(Registries.ITEM, Identifier.of(Columbina.MOD_ID, "token"), TOKEN);
     }
+
+    // Gestion du clic droit
     private static TypedActionResult<ItemStack> handleTokenUse(ServerPlayerEntity player, ItemStack stack) {
         String teamName = TeamManager.getInstance().getPlayerTeam(player);
         if (teamName == null) {
@@ -38,6 +44,10 @@ public class ModItems {
             return TypedActionResult.fail(stack);
         }
         TeamManager.getInstance().addPoints(teamName, 1);
+
+        // Rafraîchir les scoreboards après ajout de points
+        ScoreboardManager.getInstance().updateAllScoreboards();
+
         if (!player.isCreative()) {
             stack.decrement(1);
         }

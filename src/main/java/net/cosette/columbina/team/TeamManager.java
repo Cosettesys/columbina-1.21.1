@@ -2,6 +2,7 @@ package net.cosette.columbina.team;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Formatting;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ public class TeamManager {
 
     private final Map<String, Integer> teamPoints = new HashMap<>();
     private final Map<UUID, String> playerTeams = new HashMap<>();
+    private final Map<String, Formatting> teamColors = new HashMap<>();
 
     private ServerWorld world;
     private TeamManager() {}
@@ -31,6 +33,9 @@ public class TeamManager {
 
         playerTeams.clear();
         playerTeams.putAll(data.getPlayerTeams());
+
+        teamColors.clear();
+        teamColors.putAll(data.getTeamColors());
     }
     private void save() {
         if (world == null) return;
@@ -42,6 +47,9 @@ public class TeamManager {
 
         data.getPlayerTeams().clear();
         data.getPlayerTeams().putAll(playerTeams);
+
+        data.getTeamColors().clear();
+        data.getTeamColors().putAll(teamColors);
 
         data.markDirty();
     }
@@ -119,5 +127,40 @@ public class TeamManager {
                 .filter(entry -> teamName.equals(entry.getValue()))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
+    }
+
+    /* =========================
+       GESTION DES COULEURS
+       ========================= */
+
+    /**
+     * Définit la couleur d'une équipe
+     */
+    public boolean setTeamColor(String teamName, Formatting color) {
+        if (!teamExists(teamName)) {
+            return false;
+        }
+        teamColors.put(teamName, color);
+        save();
+        return true;
+    }
+
+    /**
+     * Récupère la couleur d'une équipe (WHITE par défaut)
+     */
+    public Formatting getTeamColor(String teamName) {
+        return teamColors.getOrDefault(teamName, Formatting.WHITE);
+    }
+
+    /**
+     * Récupère le code couleur Minecraft d'une équipe (§ format)
+     */
+    public String getTeamColorCode(String teamName) {
+        Formatting color = getTeamColor(teamName);
+        Integer colorIndex = color.getColorIndex();
+        if (colorIndex == null) {
+            return "§f"; // Blanc par défaut si pas de couleur
+        }
+        return "§" + Integer.toHexString(colorIndex).toLowerCase();
     }
 }

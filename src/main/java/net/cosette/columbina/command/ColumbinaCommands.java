@@ -1,8 +1,10 @@
 package net.cosette.columbina.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import net.cosette.columbina.scoreboard.ScoreboardManager;
 import net.cosette.columbina.team.TeamManager;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -10,7 +12,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import com.mojang.authlib.GameProfile;
+import net.minecraft.util.Formatting;
 
 import java.util.List;
 import java.util.Set;
@@ -29,11 +31,16 @@ public class ColumbinaCommands {
     }
 
     private static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
+
         dispatcher.register(
                 literal("columbina")
                         .requires(source -> source.hasPermissionLevel(2)) // Require OP level 2
                         .then(
                                 literal("team")
+
+                                        /* =========================
+                                           /columbina team create <n>
+                                           ========================= */
                                         .then(
                                                 literal("create")
                                                         .then(
@@ -56,6 +63,10 @@ public class ColumbinaCommands {
                                                                         })
                                                         )
                                         )
+
+                                        /* =========================
+                                           /columbina team join <team> <player>
+                                           ========================= */
                                         .then(
                                                 literal("join")
                                                         .then(
@@ -83,6 +94,10 @@ public class ColumbinaCommands {
                                                                         )
                                                         )
                                         )
+
+                                        /* =========================
+                                           /columbina team leave <player>
+                                           ========================= */
                                         .then(
                                                 literal("leave")
                                                         .then(
@@ -105,6 +120,10 @@ public class ColumbinaCommands {
                                                                         })
                                                         )
                                         )
+
+                                        /* =========================
+                                           /columbina team list
+                                           ========================= */
                                         .then(
                                                 literal("list")
                                                         .executes(context -> {
@@ -118,10 +137,12 @@ public class ColumbinaCommands {
                                                                 );
                                                                 return 1;
                                                             }
+
                                                             context.getSource().sendFeedback(
                                                                     () -> Text.literal("§6=== Liste des équipes ==="),
                                                                     false
                                                             );
+
                                                             for (String team : teams) {
                                                                 int points = tm.getPoints(team);
                                                                 int memberCount = tm.getTeamMembers(team).size();
@@ -130,9 +151,14 @@ public class ColumbinaCommands {
                                                                         false
                                                                 );
                                                             }
+
                                                             return 1;
                                                         })
                                         )
+
+                                        /* =========================
+                                           /columbina team info <team>
+                                           ========================= */
                                         .then(
                                                 literal("info")
                                                         .then(
@@ -147,6 +173,7 @@ public class ColumbinaCommands {
                                                                                 );
                                                                                 return 0;
                                                                             }
+
                                                                             int points = tm.getPoints(teamName);
                                                                             List<UUID> memberUUIDs = tm.getTeamMembers(teamName);
 
@@ -168,21 +195,21 @@ public class ColumbinaCommands {
                                                                                 StringBuilder members = new StringBuilder("§eMembres : §b");
                                                                                 for (int i = 0; i < memberUUIDs.size(); i++) {
                                                                                     UUID uuid = memberUUIDs.get(i);
-                                                                                    // Récupère le joueur connecté
+
                                                                                     ServerPlayerEntity player = context.getSource().getServer().getPlayerManager().getPlayer(uuid);
                                                                                     String playerName;
+
                                                                                     if (player != null) {
-                                                                                        // si Joueur connecté
                                                                                         playerName = player.getName().getString();
                                                                                     } else {
-                                                                                        // Joueur déconnecté - pas de recherche en cache
                                                                                         com.mojang.authlib.GameProfile profile = context.getSource().getServer().getUserCache().getByUuid(uuid).orElse(null);
                                                                                         if (profile != null) {
                                                                                             playerName = profile.getName();
                                                                                         } else {
-                                                                                            playerName = uuid.toString(); // Fallback uuid si introuvable
+                                                                                            playerName = uuid.toString();
                                                                                         }
                                                                                     }
+
                                                                                     members.append(playerName);
                                                                                     if (i < memberUUIDs.size() - 1) {
                                                                                         members.append("§7, §b");
@@ -199,8 +226,82 @@ public class ColumbinaCommands {
                                                                         })
                                                         )
                                         )
+
+                                        /* =========================
+                                           /columbina team color set <team> <color>
+                                           ========================= */
+                                        .then(
+                                                literal("color")
+                                                        .then(
+                                                                literal("set")
+                                                                        .then(
+                                                                                argument("team", StringArgumentType.word())
+                                                                                        .then(
+                                                                                                argument("color", StringArgumentType.word())
+                                                                                                        .suggests((ctx, builder) -> {
+                                                                                                            return builder
+                                                                                                                    .suggest("red")
+                                                                                                                    .suggest("blue")
+                                                                                                                    .suggest("green")
+                                                                                                                    .suggest("yellow")
+                                                                                                                    .suggest("aqua")
+                                                                                                                    .suggest("gold")
+                                                                                                                    .suggest("light_purple")
+                                                                                                                    .suggest("dark_red")
+                                                                                                                    .suggest("dark_blue")
+                                                                                                                    .suggest("dark_green")
+                                                                                                                    .suggest("dark_aqua")
+                                                                                                                    .suggest("dark_purple")
+                                                                                                                    .suggest("white")
+                                                                                                                    .suggest("gray")
+                                                                                                                    .suggest("dark_gray")
+                                                                                                                    .suggest("black")
+                                                                                                                    .buildFuture();
+                                                                                                        })
+                                                                                                        .executes(ctx -> {
+                                                                                                            String team = StringArgumentType.getString(ctx, "team");
+                                                                                                            String colorName = StringArgumentType.getString(ctx, "color");
+                                                                                                            TeamManager tm = TeamManager.getInstance();
+
+                                                                                                            if (!tm.teamExists(team)) {
+                                                                                                                ctx.getSource().sendError(
+                                                                                                                        Text.literal("§cCette équipe n'existe pas.")
+                                                                                                                );
+                                                                                                                return 0;
+                                                                                                            }
+
+                                                                                                            Formatting color = Formatting.byName(colorName.toLowerCase());
+                                                                                                            if (color == null || !color.isColor()) {
+                                                                                                                ctx.getSource().sendError(
+                                                                                                                        Text.literal("§cCouleur invalide. Utilisez: red, blue, green, yellow, aqua, gold, etc.")
+                                                                                                                );
+                                                                                                                return 0;
+                                                                                                            }
+
+                                                                                                            tm.setTeamColor(team, color);
+
+                                                                                                            // Rafraîchir les scoreboards après changement de couleur
+                                                                                                            ScoreboardManager.getInstance().updateAllScoreboards();
+
+                                                                                                            ctx.getSource().sendFeedback(
+                                                                                                                    () -> Text.literal("§eCouleur de l'équipe " + team + " définie à ").append(Text.literal(colorName).formatted(color)),
+                                                                                                                    true
+                                                                                                            );
+
+                                                                                                            return 1;
+                                                                                                        })
+                                                                                        )
+                                                                        )
+                                                        )
+                                        )
+
+                                        /* =========================
+                                           /columbina team points ...
+                                           ========================= */
                                         .then(
                                                 literal("points")
+
+                                                        /* /columbina team points get <team> */
                                                         .then(
                                                                 literal("get")
                                                                         .then(
@@ -223,6 +324,8 @@ public class ColumbinaCommands {
                                                                                         })
                                                                         )
                                                         )
+
+                                                        /* /columbina team points add <team> <value> */
                                                         .then(
                                                                 literal("add")
                                                                         .then(
@@ -243,11 +346,15 @@ public class ColumbinaCommands {
                                                                                                                     () -> Text.literal("§a+" + value + " §epoints pour l'équipe " + team),
                                                                                                                     true
                                                                                                             );
+                                                                                                            // Rafraîchir les scoreboards après modification des points
+                                                                                                            ScoreboardManager.getInstance().updateAllScoreboards();
                                                                                                             return 1;
                                                                                                         })
                                                                                         )
                                                                         )
                                                         )
+
+                                                        /* /columbina team points set <team> <value> */
                                                         .then(
                                                                 literal("set")
                                                                         .then(
@@ -268,10 +375,140 @@ public class ColumbinaCommands {
                                                                                                                     () -> Text.literal("§ePoints de l'équipe " + team + " définis à §a" + value),
                                                                                                                     true
                                                                                                             );
+                                                                                                            // Rafraîchir les scoreboards après modification des points
+                                                                                                            ScoreboardManager.getInstance().updateAllScoreboards();
                                                                                                             return 1;
                                                                                                         })
                                                                                         )
                                                                         )
+                                                        )
+                                        )
+                        )
+
+                        /* =========================
+                           /columbina scoreboard ...
+                           ========================= */
+                        .then(
+                                literal("scoreboard")
+
+                                        /* /columbina scoreboard spawn <name> <x> <y> <z> <team|list> */
+                                        .then(
+                                                literal("spawn")
+                                                        .then(
+                                                                argument("name", StringArgumentType.word())
+                                                                        .then(
+                                                                                argument("x", DoubleArgumentType.doubleArg())
+                                                                                        .then(
+                                                                                                argument("y", DoubleArgumentType.doubleArg())
+                                                                                                        .then(
+                                                                                                                argument("z", DoubleArgumentType.doubleArg())
+                                                                                                                        .then(
+                                                                                                                                argument("teamOrList", StringArgumentType.word())
+                                                                                                                                        .executes(ctx -> {
+                                                                                                                                            String name = StringArgumentType.getString(ctx, "name");
+                                                                                                                                            double x = DoubleArgumentType.getDouble(ctx, "x");
+                                                                                                                                            double y = DoubleArgumentType.getDouble(ctx, "y");
+                                                                                                                                            double z = DoubleArgumentType.getDouble(ctx, "z");
+                                                                                                                                            String teamOrList = StringArgumentType.getString(ctx, "teamOrList");
+
+                                                                                                                                            ScoreboardManager sm = ScoreboardManager.getInstance();
+                                                                                                                                            boolean success;
+
+                                                                                                                                            if ("list".equalsIgnoreCase(teamOrList)) {
+                                                                                                                                                success = sm.spawnListScoreboard(name, x, y, z);
+                                                                                                                                                if (success) {
+                                                                                                                                                    ctx.getSource().sendFeedback(
+                                                                                                                                                            () -> Text.literal("§aScoreboard de classement '" + name + "' créé à " + x + ", " + y + ", " + z),
+                                                                                                                                                            true
+                                                                                                                                                    );
+                                                                                                                                                } else {
+                                                                                                                                                    ctx.getSource().sendError(
+                                                                                                                                                            Text.literal("§cUn scoreboard avec ce nom existe déjà.")
+                                                                                                                                                    );
+                                                                                                                                                }
+                                                                                                                                            } else {
+                                                                                                                                                success = sm.spawnTeamScoreboard(name, x, y, z, teamOrList);
+                                                                                                                                                if (success) {
+                                                                                                                                                    ctx.getSource().sendFeedback(
+                                                                                                                                                            () -> Text.literal("§aScoreboard pour l'équipe '" + teamOrList + "' créé à " + x + ", " + y + ", " + z),
+                                                                                                                                                            true
+                                                                                                                                                    );
+                                                                                                                                                } else {
+                                                                                                                                                    ctx.getSource().sendError(
+                                                                                                                                                            Text.literal("§cUn scoreboard avec ce nom existe déjà ou l'équipe n'existe pas.")
+                                                                                                                                                    );
+                                                                                                                                                }
+                                                                                                                                            }
+
+                                                                                                                                            return success ? 1 : 0;
+                                                                                                                                        })
+                                                                                                                        )
+                                                                                                        )
+                                                                                        )
+                                                                        )
+                                                        )
+                                        )
+
+                                        /* /columbina scoreboard delete <name> */
+                                        .then(
+                                                literal("delete")
+                                                        .then(
+                                                                argument("name", StringArgumentType.word())
+                                                                        .executes(ctx -> {
+                                                                            String name = StringArgumentType.getString(ctx, "name");
+                                                                            ScoreboardManager sm = ScoreboardManager.getInstance();
+
+                                                                            boolean success = sm.deleteScoreboard(name);
+
+                                                                            if (success) {
+                                                                                ctx.getSource().sendFeedback(
+                                                                                        () -> Text.literal("§eScoreboard '" + name + "' supprimé."),
+                                                                                        true
+                                                                                );
+                                                                            } else {
+                                                                                ctx.getSource().sendError(
+                                                                                        Text.literal("§cAucun scoreboard avec ce nom n'existe.")
+                                                                                );
+                                                                            }
+
+                                                                            return success ? 1 : 0;
+                                                                        })
+                                                        )
+                                        )
+                                        /* /columbina scoreboard refresh [name] */
+                                        .then(
+                                                literal("refresh")
+                                                        .executes(ctx -> {
+                                                            // Rafraîchir tous les scoreboards
+                                                            ScoreboardManager.getInstance().updateAllScoreboards();
+                                                            ctx.getSource().sendFeedback(
+                                                                    () -> Text.literal("§aTous les scoreboards ont été rafraîchis."),
+                                                                    true
+                                                            );
+                                                            return 1;
+                                                        })
+                                                        .then(
+                                                                argument("name", StringArgumentType.word())
+                                                                        .executes(ctx -> {
+                                                                            // Rafraîchir un scoreboard spécifique
+                                                                            String name = StringArgumentType.getString(ctx, "name");
+                                                                            ScoreboardManager sm = ScoreboardManager.getInstance();
+
+                                                                            boolean success = sm.updateScoreboard(name);
+
+                                                                            if (success) {
+                                                                                ctx.getSource().sendFeedback(
+                                                                                        () -> Text.literal("§eScoreboard '" + name + "' rafraîchi."),
+                                                                                        true
+                                                                                );
+                                                                            } else {
+                                                                                ctx.getSource().sendError(
+                                                                                        Text.literal("§cAucun scoreboard avec ce nom n'existe.")
+                                                                                );
+                                                                            }
+
+                                                                            return success ? 1 : 0;
+                                                                        })
                                                         )
                                         )
                         )
