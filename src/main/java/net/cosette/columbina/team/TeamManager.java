@@ -9,9 +9,7 @@ import java.util.stream.Collectors;
 public class TeamManager {
     private static final TeamManager INSTANCE = new TeamManager();
 
-    // nom de la team -> points
     private final Map<String, Integer> teamPoints = new HashMap<>();
-    // joueur -> nom de la team
     private final Map<UUID, String> playerTeams = new HashMap<>();
 
     private ServerWorld world;
@@ -20,9 +18,6 @@ public class TeamManager {
         return INSTANCE;
     }
 
-    /* =========================
-       INITIALISATION / SAVE
-       ========================= */
 
     public void init(ServerWorld world) {
         this.world = world;
@@ -50,9 +45,8 @@ public class TeamManager {
 
         data.markDirty();
     }
-    /* =========================
-       TEAMS
-       ========================= */
+
+
     public boolean createTeam(String name) {
         if (teamPoints.containsKey(name)) {
             return false;
@@ -64,9 +58,8 @@ public class TeamManager {
     public boolean teamExists(String name) {
         return teamPoints.containsKey(name);
     }
-    /* =========================
-       JOUEURS
-       ========================= */
+
+
     public boolean isPlayerInTeam(ServerPlayerEntity player) {
         return playerTeams.containsKey(player.getUuid());
     }
@@ -93,9 +86,6 @@ public class TeamManager {
         return playerTeams.get(player.getUuid());
     }
 
-    /* =========================
-       GESTION DES POINTS
-       ========================= */
 
     public boolean addPoints(String teamName, int value) {
         if (!teamExists(teamName)) {
@@ -117,20 +107,10 @@ public class TeamManager {
         return teamPoints.getOrDefault(teamName, 0);
     }
 
-    /* =========================
-       UTILITAIRES
-       ========================= */
 
-    /**
-     * Retourne l'ensemble de tous les noms d'équipes
-     */
     public Set<String> getAllTeams() {
         return new HashSet<>(teamPoints.keySet());
     }
-
-    /**
-     * Retourne la liste des UUIDs des joueurs membres d'une équipe
-     */
     public List<UUID> getTeamMembers(String teamName) {
         if (!teamExists(teamName)) {
             return new ArrayList<>();

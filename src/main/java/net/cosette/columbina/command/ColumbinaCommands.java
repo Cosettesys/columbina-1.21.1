@@ -29,16 +29,11 @@ public class ColumbinaCommands {
     }
 
     private static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
-
         dispatcher.register(
                 literal("columbina")
                         .requires(source -> source.hasPermissionLevel(2)) // Require OP level 2
                         .then(
                                 literal("team")
-
-                                        /* =========================
-                                           /columbina team create <n>
-                                           ========================= */
                                         .then(
                                                 literal("create")
                                                         .then(
@@ -61,10 +56,6 @@ public class ColumbinaCommands {
                                                                         })
                                                         )
                                         )
-
-                                        /* =========================
-                                           /columbina team join <team> <player>
-                                           ========================= */
                                         .then(
                                                 literal("join")
                                                         .then(
@@ -92,10 +83,6 @@ public class ColumbinaCommands {
                                                                         )
                                                         )
                                         )
-
-                                        /* =========================
-                                           /columbina team leave <player>
-                                           ========================= */
                                         .then(
                                                 literal("leave")
                                                         .then(
@@ -118,10 +105,6 @@ public class ColumbinaCommands {
                                                                         })
                                                         )
                                         )
-
-                                        /* =========================
-                                           /columbina team list
-                                           ========================= */
                                         .then(
                                                 literal("list")
                                                         .executes(context -> {
@@ -135,12 +118,10 @@ public class ColumbinaCommands {
                                                                 );
                                                                 return 1;
                                                             }
-
                                                             context.getSource().sendFeedback(
                                                                     () -> Text.literal("§6=== Liste des équipes ==="),
                                                                     false
                                                             );
-
                                                             for (String team : teams) {
                                                                 int points = tm.getPoints(team);
                                                                 int memberCount = tm.getTeamMembers(team).size();
@@ -149,14 +130,9 @@ public class ColumbinaCommands {
                                                                         false
                                                                 );
                                                             }
-
                                                             return 1;
                                                         })
                                         )
-
-                                        /* =========================
-                                           /columbina team info <team>
-                                           ========================= */
                                         .then(
                                                 literal("info")
                                                         .then(
@@ -171,7 +147,6 @@ public class ColumbinaCommands {
                                                                                 );
                                                                                 return 0;
                                                                             }
-
                                                                             int points = tm.getPoints(teamName);
                                                                             List<UUID> memberUUIDs = tm.getTeamMembers(teamName);
 
@@ -193,11 +168,9 @@ public class ColumbinaCommands {
                                                                                 StringBuilder members = new StringBuilder("§eMembres : §b");
                                                                                 for (int i = 0; i < memberUUIDs.size(); i++) {
                                                                                     UUID uuid = memberUUIDs.get(i);
-
-                                                                                    // Essaye de récupérer le joueur connecté
+                                                                                    // Récupère le joueur connecté
                                                                                     ServerPlayerEntity player = context.getSource().getServer().getPlayerManager().getPlayer(uuid);
                                                                                     String playerName;
-
                                                                                     if (player != null) {
                                                                                         // si Joueur connecté
                                                                                         playerName = player.getName().getString();
@@ -207,10 +180,9 @@ public class ColumbinaCommands {
                                                                                         if (profile != null) {
                                                                                             playerName = profile.getName();
                                                                                         } else {
-                                                                                            playerName = uuid.toString(); // Fallback si vraiment introuvable
+                                                                                            playerName = uuid.toString(); // Fallback uuid si introuvable
                                                                                         }
                                                                                     }
-
                                                                                     members.append(playerName);
                                                                                     if (i < memberUUIDs.size() - 1) {
                                                                                         members.append("§7, §b");
@@ -227,14 +199,8 @@ public class ColumbinaCommands {
                                                                         })
                                                         )
                                         )
-
-                                        /* =========================
-                                           /columbina team points ...
-                                           ========================= */
                                         .then(
                                                 literal("points")
-
-                                                        /* /columbina team points get <team> */
                                                         .then(
                                                                 literal("get")
                                                                         .then(
@@ -257,8 +223,6 @@ public class ColumbinaCommands {
                                                                                         })
                                                                         )
                                                         )
-
-                                                        /* /columbina team points add <team> <value> */
                                                         .then(
                                                                 literal("add")
                                                                         .then(
@@ -284,8 +248,6 @@ public class ColumbinaCommands {
                                                                                         )
                                                                         )
                                                         )
-
-                                                        /* /columbina team points set <team> <value> */
                                                         .then(
                                                                 literal("set")
                                                                         .then(

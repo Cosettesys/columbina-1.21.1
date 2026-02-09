@@ -20,14 +20,13 @@ public class Columbina implements ModInitializer {
 		LOGGER.info("Columbina charge!");
 
 		ColumbinaCommands.register();
-		// Initialisation du TeamManager à chaque démarrage de serveur
+
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-			ServerWorld world = server.getOverworld(); // récupère l'Overworld
-			TeamManager.getInstance().init(world);    // initialise le TeamManager avec ce monde
+			ServerWorld world = server.getOverworld();
+			TeamManager.getInstance().init(world);
 			System.out.println("TeamManager initialisé !");
 		});
 
-		// Register les items
 		ModItems.registerItems();
 	}
 }
