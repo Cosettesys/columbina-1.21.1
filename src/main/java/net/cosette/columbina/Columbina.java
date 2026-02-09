@@ -15,25 +15,18 @@ import net.cosette.columbina.team.TeamManager;
 public class Columbina implements ModInitializer {
 	public static final String MOD_ID = "columbina";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-
 	private static final int SCOREBOARD_UPDATE_INTERVAL = 100; // 5 secondes (20 ticks = 1 seconde)
 	private int tickCounter = 0;
-
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Columbina charge!");
-
 		ColumbinaCommands.register();
-
-		// Initialisation du TeamManager et ScoreboardManager à chaque démarrage de serveur
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			ServerWorld world = server.getOverworld();
 			TeamManager.getInstance().init(world);
 			ScoreboardManager.getInstance().init(world);
 			System.out.println("TeamManager et ScoreboardManager initialisés !");
 		});
-
-		// Mise à jour automatique des scoreboards toutes les 5 secondes
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			tickCounter++;
 			if (tickCounter >= SCOREBOARD_UPDATE_INTERVAL) {
@@ -41,8 +34,6 @@ public class Columbina implements ModInitializer {
 				ScoreboardManager.getInstance().updateAllScoreboards();
 			}
 		});
-
-		// Register les items
 		ModItems.registerItems();
 	}
 }
