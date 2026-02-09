@@ -3,9 +3,8 @@ package net.cosette.columbina.team;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TeamManager {
     private static final TeamManager INSTANCE = new TeamManager();
@@ -116,5 +115,29 @@ public class TeamManager {
     }
     public int getPoints(String teamName) {
         return teamPoints.getOrDefault(teamName, 0);
+    }
+
+    /* =========================
+       UTILITAIRES
+       ========================= */
+
+    /**
+     * Retourne l'ensemble de tous les noms d'équipes
+     */
+    public Set<String> getAllTeams() {
+        return new HashSet<>(teamPoints.keySet());
+    }
+
+    /**
+     * Retourne la liste des UUIDs des joueurs membres d'une équipe
+     */
+    public List<UUID> getTeamMembers(String teamName) {
+        if (!teamExists(teamName)) {
+            return new ArrayList<>();
+        }
+        return playerTeams.entrySet().stream()
+                .filter(entry -> teamName.equals(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 }
