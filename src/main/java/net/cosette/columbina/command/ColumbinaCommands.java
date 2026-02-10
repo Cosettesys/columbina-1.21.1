@@ -246,8 +246,6 @@ public class ColumbinaCommands {
                                         )
                                         .then(
                                                 literal("points")
-
-                                                        /* /columbina team points get <team> */
                                                         .then(
                                                                 literal("get")
                                                                         .then(
@@ -273,21 +271,56 @@ public class ColumbinaCommands {
                                                                         .then(
                                                                                 argument("team", StringArgumentType.word())
                                                                                         .then(
-                                                                                                argument("value", IntegerArgumentType.integer())
+                                                                                                argument("value", IntegerArgumentType.integer(1))
                                                                                                         .executes(ctx -> {
                                                                                                             String team = StringArgumentType.getString(ctx, "team");
                                                                                                             int value = IntegerArgumentType.getInteger(ctx, "value");
                                                                                                             TeamManager tm = TeamManager.getInstance();
 
-                                                                                                            if (!tm.addPoints(team, value)) {
-                                                                                                                ctx.getSource().sendError(Text.literal("§cImpossible d'ajouter des points (équipe inexistante)."));
+                                                                                                            if (!tm.teamExists(team)) {
+                                                                                                                ctx.getSource().sendError(Text.literal("§cCette équipe n'existe pas."));
                                                                                                                 return 0;
                                                                                                             }
+
+                                                                                                            tm.addPoints(team, value);
+                                                                                                            ScoreboardManager.getInstance().updateAllScoreboards();
+
                                                                                                             ctx.getSource().sendFeedback(
                                                                                                                     () -> Text.literal("§a+" + value + " §epoints pour l'équipe " + team),
                                                                                                                     true
                                                                                                             );
+                                                                                                            return 1;
+                                                                                                        })
+                                                                                        )
+                                                                        )
+                                                                        .then(
+                                                                                argument("player", EntityArgumentType.player())
+                                                                                        .then(
+                                                                                                argument("value", IntegerArgumentType.integer(1))
+                                                                                                        .executes(ctx -> {
+                                                                                                            ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "player");
+                                                                                                            int value = IntegerArgumentType.getInteger(ctx, "value");
+                                                                                                            TeamManager tm = TeamManager.getInstance();
+
+                                                                                                            String teamName = tm.getPlayerTeam(player);
+                                                                                                            if (teamName == null) {
+                                                                                                                ctx.getSource().sendError(
+                                                                                                                        Text.literal("§c" + player.getName().getString() + " n'est dans aucune équipe.")
+                                                                                                                );
+                                                                                                                return 0;
+                                                                                                            }
+
+                                                                                                            tm.addPoints(teamName, value);
                                                                                                             ScoreboardManager.getInstance().updateAllScoreboards();
+
+                                                                                                            ctx.getSource().sendFeedback(
+                                                                                                                    () -> Text.literal("§a+" + value + " §epoints ajoutés à l'équipe " + teamName + " via " + player.getName().getString()),
+                                                                                                                    true
+                                                                                                            );
+                                                                                                            player.sendMessage(
+                                                                                                                    Text.literal("§aTu as gagné §6" + value + " §apoints pour ton équipe !"),
+                                                                                                                    false
+                                                                                                            );
                                                                                                             return 1;
                                                                                                         })
                                                                                         )
@@ -316,6 +349,121 @@ public class ColumbinaCommands {
                                                                                                         })
                                                                                         )
                                                                         )
+                                                        )
+                                        )
+                        )
+                        .then(
+                                literal("pay")
+                                        .then(
+                                                argument("player", EntityArgumentType.player())
+                                                        .then(
+                                                                argument("value", IntegerArgumentType.integer(1))
+                                                                        .executes(ctx -> {
+                                                                            ServerPlayerEntity sender = ctx.getSource().getPlayerOrThrow();
+                                                                            ServerPlayerEntity receiver = EntityArgumentType.getPlayer(ctx, "player");
+                                                                            int value = IntegerArgumentType.getInteger(ctx, "value");
+                                                                            TeamManager tm = TeamManager.getInstance();
+
+                                                                            String senderTeam = tm.getPlayerTeam(sender);
+                                                                            if (senderTeam == null) {
+                                                                                ctx.getSource().sendError(
+                                                                                        Text.literal("§cTu n'es dans aucune équipe.")
+                                                                                );
+                                                                                return 0;
+                                                                            }
+                                                                            String receiverTeam = tm.getPlayerTeam(receiver);
+                                                                            if (receiverTeam == null) {
+                                                                                ctx.getSource().sendError(
+                                                                                        Text.literal("§c" + receiver.getName().getString() + " n'est dans aucune équipe.")
+                                                                                );
+                                                                                return 0;
+                                                                            }
+                                                                            int currentPoints = tm.getPoints(senderTeam);
+                                                                            if (currentPoints < value) {
+                                                                                ctx.getSource().sendError(
+                                                                                        Text.literal("§cTon équipe n'a pas assez de points. Solde actuel : §6" + currentPoints)
+                                                                                );
+                                                                                return 0;
+                                                                            }
+                                                                            tm.addPoints(senderTeam, -value);
+                                                                            tm.addPoints(receiverTeam, value);
+                                                                            ScoreboardManager.getInstance().updateAllScoreboards();
+                                                                            ctx.getSource().sendFeedback(
+                                                                                    () -> Text.literal("§eTu as payé §6" + value + " §epoints à l'équipe de " + receiver.getName().getString()),
+                                                                                    false
+                                                                            );
+                                                                            receiver.sendMessage(
+                                                                                    Text.literal("§aTon équipe a reçu §6" + value + " §apoints de " + sender.getName().getString()),
+                                                                                    false
+                                                                            );
+                                                                            return 1;
+                                                                        })
+                                                        )
+                                        )
+                        )
+                        .then(
+                                literal("token")
+                                        .then(
+                                                literal("take")
+                                                        .then(
+                                                                argument("value", IntegerArgumentType.integer(1, 64))
+                                                                        .executes(ctx -> {
+                                                                            ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+                                                                            int value = IntegerArgumentType.getInteger(ctx, "value");
+                                                                            TeamManager tm = TeamManager.getInstance();
+                                                                            String teamName = tm.getPlayerTeam(player);
+                                                                            if (teamName == null) {
+                                                                                ctx.getSource().sendError(
+                                                                                        Text.literal("§cTu n'es dans aucune équipe.")
+                                                                                );
+                                                                                return 0;
+                                                                            }
+                                                                            int currentPoints = tm.getPoints(teamName);
+                                                                            if (currentPoints < value) {
+                                                                                ctx.getSource().sendError(
+                                                                                        Text.literal("§cTon équipe n'a pas assez de points. Solde actuel : §6" + currentPoints)
+                                                                                );
+                                                                                return 0;
+                                                                            }
+                                                                            net.minecraft.entity.player.PlayerInventory inventory = player.getInventory();
+                                                                            boolean hasSpace = false;
+                                                                            for (int slot = 0; slot < inventory.size(); slot++) {
+                                                                                net.minecraft.item.ItemStack stackInSlot = inventory.getStack(slot);
+                                                                                if (stackInSlot.isEmpty()) {
+                                                                                    hasSpace = true;
+                                                                                    break;
+                                                                                } else if (stackInSlot.getItem() == net.cosette.columbina.item.ModItems.TOKEN
+                                                                                        && stackInSlot.getCount() + value <= stackInSlot.getMaxCount()) {
+                                                                                    // Stack de tokens avec assez de place pour empiler
+                                                                                    hasSpace = true;
+                                                                                    break;
+                                                                                }
+                                                                            }
+                                                                            if (!hasSpace) {
+                                                                                ctx.getSource().sendError(
+                                                                                        Text.literal("§cTon inventaire est plein ! Libère de l'espace avant de retirer des tokens.")
+                                                                                );
+                                                                                return 0;
+                                                                            }
+                                                                            net.minecraft.item.ItemStack tokenStack = new net.minecraft.item.ItemStack(
+                                                                                    net.cosette.columbina.item.ModItems.TOKEN,
+                                                                                    value
+                                                                            );
+                                                                            if (!player.giveItemStack(tokenStack)) {
+                                                                                ctx.getSource().sendError(
+                                                                                        Text.literal("§cErreur lors du retrait des tokens.")
+                                                                                );
+                                                                                return 0;
+                                                                            }
+                                                                            tm.addPoints(teamName, -value);
+                                                                            ScoreboardManager.getInstance().updateAllScoreboards();
+
+                                                                            ctx.getSource().sendFeedback(
+                                                                                    () -> Text.literal("§eTu as retiré §c" + value + " §epoints de ton équipe et reçu §6" + value + " §etoken(s)"),
+                                                                                    false
+                                                                            );
+                                                                            return 1;
+                                                                        })
                                                         )
                                         )
                         )
