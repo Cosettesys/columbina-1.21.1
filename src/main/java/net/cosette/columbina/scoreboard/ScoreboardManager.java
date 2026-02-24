@@ -141,7 +141,7 @@ public class ScoreboardManager {
         List<UUID> members = tm.getTeamMembers(teamName);
         StringBuilder text = new StringBuilder();
         text.append(color).append("╔═══════════════════╗\n");
-        text.append(color).append("║  ").append(teamName.toUpperCase()).append("\n");
+        text.append(color).append("║  ").append(teamName.toUpperCase()).append("  ║").append("\n");
         text.append(color).append("╠═══════════════════╣\n");
         text.append(Formatting.WHITE).append("  Points: ").append(Formatting.GOLD).append(points).append("\n\n");
         text.append(Formatting.WHITE).append("  Membres:\n");

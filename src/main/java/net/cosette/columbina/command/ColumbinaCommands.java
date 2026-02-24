@@ -18,9 +18,11 @@ import java.util.Set;
 import java.util.UUID;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
+import net.cosette.columbina.item.ModItems;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 public class ColumbinaCommands {
-
     public static void register() {
         CommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess, environment) ->
@@ -406,64 +408,76 @@ public class ColumbinaCommands {
                                         .then(
                                                 literal("take")
                                                         .then(
-                                                                argument("value", IntegerArgumentType.integer(1, 64))
-                                                                        .executes(ctx -> {
-                                                                            ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-                                                                            int value = IntegerArgumentType.getInteger(ctx, "value");
-                                                                            TeamManager tm = TeamManager.getInstance();
-                                                                            String teamName = tm.getPlayerTeam(player);
-                                                                            if (teamName == null) {
-                                                                                ctx.getSource().sendError(
-                                                                                        Text.literal("§cTu n'es dans aucune équipe.")
-                                                                                );
-                                                                                return 0;
-                                                                            }
-                                                                            int currentPoints = tm.getPoints(teamName);
-                                                                            if (currentPoints < value) {
-                                                                                ctx.getSource().sendError(
-                                                                                        Text.literal("§cTon équipe n'a pas assez de points. Solde actuel : §6" + currentPoints)
-                                                                                );
-                                                                                return 0;
-                                                                            }
-                                                                            net.minecraft.entity.player.PlayerInventory inventory = player.getInventory();
-                                                                            boolean hasSpace = false;
-                                                                            for (int slot = 0; slot < inventory.size(); slot++) {
-                                                                                net.minecraft.item.ItemStack stackInSlot = inventory.getStack(slot);
-                                                                                if (stackInSlot.isEmpty()) {
-                                                                                    hasSpace = true;
-                                                                                    break;
-                                                                                } else if (stackInSlot.getItem() == net.cosette.columbina.item.ModItems.TOKEN
-                                                                                        && stackInSlot.getCount() + value <= stackInSlot.getMaxCount()) {
-                                                                                    // Stack de tokens avec assez de place pour empiler
-                                                                                    hasSpace = true;
-                                                                                    break;
-                                                                                }
-                                                                            }
-                                                                            if (!hasSpace) {
-                                                                                ctx.getSource().sendError(
-                                                                                        Text.literal("§cTon inventaire est plein ! Libère de l'espace avant de retirer des tokens.")
-                                                                                );
-                                                                                return 0;
-                                                                            }
-                                                                            net.minecraft.item.ItemStack tokenStack = new net.minecraft.item.ItemStack(
-                                                                                    net.cosette.columbina.item.ModItems.TOKEN,
-                                                                                    value
-                                                                            );
-                                                                            if (!player.giveItemStack(tokenStack)) {
-                                                                                ctx.getSource().sendError(
-                                                                                        Text.literal("§cErreur lors du retrait des tokens.")
-                                                                                );
-                                                                                return 0;
-                                                                            }
-                                                                            tm.addPoints(teamName, -value);
-                                                                            ScoreboardManager.getInstance().updateAllScoreboards();
-
-                                                                            ctx.getSource().sendFeedback(
-                                                                                    () -> Text.literal("§eTu as retiré §c" + value + " §epoints de ton équipe et reçu §6" + value + " §etoken(s)"),
-                                                                                    false
-                                                                            );
-                                                                            return 1;
+                                                                argument("type", StringArgumentType.word())
+                                                                        .suggests((ctx, builder) -> {
+                                                                            return builder
+                                                                                    .suggest("small")
+                                                                                    .suggest("medium")
+                                                                                    .suggest("large")
+                                                                                    .buildFuture();
                                                                         })
+                                                                        .then(
+                                                                                argument("value", IntegerArgumentType.integer(1, 64))
+                                                                                        .executes(ctx -> {
+                                                                                            ServerPlayerEntity player;
+                                                                                            try {
+                                                                                                player = ctx.getSource().getPlayerOrThrow();
+                                                                                            } catch (Exception e) {
+                                                                                                ctx.getSource().sendError(Text.literal("§cCette commande doit être exécutée par un joueur."));
+                                                                                                return 0;
+                                                                                            }
+                                                                                            String type = StringArgumentType.getString(ctx, "type");
+                                                                                            int value = IntegerArgumentType.getInteger(ctx, "value");
+                                                                                            TeamManager tm = TeamManager.getInstance();
+                                                                                            String teamName = tm.getPlayerTeam(player);
+                                                                                            if (teamName == null) {
+                                                                                                ctx.getSource().sendError(Text.literal("§cTu n'es dans aucune équipe."));
+                                                                                                return 0;
+                                                                                            }
+                                                                                            int pointsPerToken;
+                                                                                            String tokenName;
+                                                                                            switch (type.toLowerCase()) {
+                                                                                                case "small":
+                                                                                                    pointsPerToken = 1;
+                                                                                                    tokenName = "token";
+                                                                                                    break;
+                                                                                                case "medium":
+                                                                                                    pointsPerToken = 10;
+                                                                                                    tokenName = "token_medium";
+                                                                                                    break;
+                                                                                                case "large":
+                                                                                                    pointsPerToken = 100;
+                                                                                                    tokenName = "token_big";
+                                                                                                    break;
+                                                                                                default:
+                                                                                                    ctx.getSource().sendError(Text.literal("§cType invalide. Utilisez: small, medium, ou large."));
+                                                                                                    return 0;
+                                                                                            }
+                                                                                            int totalCost = pointsPerToken * value;
+                                                                                            int currentPoints = tm.getPoints(teamName);
+                                                                                            if (currentPoints < totalCost) {
+                                                                                                ctx.getSource().sendError(
+                                                                                                        Text.literal("§cTon équipe n'a pas assez de points ! (Requis: " + totalCost + ", Disponible: " + currentPoints + ")")
+                                                                                                );
+                                                                                                return 0;
+                                                                                            }
+                                                                                            ItemStack tokenStack = new ItemStack(getTokenItem(tokenName), value);
+                                                                                            if (!player.getInventory().insertStack(tokenStack)) {
+                                                                                                ctx.getSource().sendError(
+                                                                                                        Text.literal("§cTon inventaire est plein ! Libère de la place et réessaye.")
+                                                                                                );
+                                                                                                return 0;
+                                                                                            }
+                                                                                            tm.addPoints(teamName, -totalCost);
+                                                                                            ScoreboardManager.getInstance().updateAllScoreboards();
+                                                                                            String tokenDisplayName = value > 1 ? value + " tokens " + type : "1 token " + type;
+                                                                                            ctx.getSource().sendFeedback(
+                                                                                                    () -> Text.literal("§aVous avez reçu " + tokenDisplayName + " §a(-" + totalCost + " points pour votre équipe)"),
+                                                                                                    false
+                                                                                            );
+                                                                                            return 1;
+                                                                                        })
+                                                                        )
                                                         )
                                         )
                         )
@@ -577,5 +591,19 @@ public class ColumbinaCommands {
                                         )
                         )
         );
+    }
+    private static Item getTokenItem(String tokenName) {
+        switch (tokenName) {
+            case "token":
+                return ModItems.TOKEN;
+            case "token_medium":
+                return ModItems.TOKEN_MEDIUM;
+            case "token_big":
+                return ModItems.TOKEN_BIG;
+            case "token_enormous":
+                return ModItems.TOKEN_ENORMOUS;
+            default:
+                return ModItems.TOKEN;
+        }
     }
 }

@@ -16,31 +16,43 @@ import net.minecraft.util.Identifier;
 import net.minecraft.text.Text;
 
 public class ModItems {
-    public static final Item TOKEN = new Item(new Item.Settings()) {
-        @Override
-        public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-            ItemStack stack = player.getStackInHand(hand);
-            if (!world.isClient && player instanceof ServerPlayerEntity serverPlayer) {
-                return handleTokenUse(serverPlayer, stack);
+    public static final Item TOKEN = createToken(1);
+    public static final Item TOKEN_MEDIUM = createToken(10);
+    public static final Item TOKEN_BIG = createToken(100);
+    public static final Item TOKEN_ENORMOUS = createToken(1000);
+    private static Item createToken(int points) {
+        return new Item(new Item.Settings()) {
+            @Override
+            public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+                ItemStack stack = player.getStackInHand(hand);
+                if (!world.isClient && player instanceof ServerPlayerEntity serverPlayer) {
+                    return handleTokenUse(serverPlayer, stack, points);
+                }
+                return TypedActionResult.pass(stack);
             }
-            return TypedActionResult.pass(stack);
-        }
-    };
+        };
+    }
     public static void registerItems() {
         Registry.register(Registries.ITEM, Identifier.of(Columbina.MOD_ID, "token"), TOKEN);
+        Registry.register(Registries.ITEM, Identifier.of(Columbina.MOD_ID, "token_medium"), TOKEN_MEDIUM);
+        Registry.register(Registries.ITEM, Identifier.of(Columbina.MOD_ID, "token_big"), TOKEN_BIG);
+        Registry.register(Registries.ITEM, Identifier.of(Columbina.MOD_ID, "token_enormous"), TOKEN_ENORMOUS);
     }
-    private static TypedActionResult<ItemStack> handleTokenUse(ServerPlayerEntity player, ItemStack stack) {
+    private static TypedActionResult<ItemStack> handleTokenUse(ServerPlayerEntity player, ItemStack stack, int points) {
         String teamName = TeamManager.getInstance().getPlayerTeam(player);
         if (teamName == null) {
             player.sendMessage(Text.literal("Tu n'es dans aucune team !"), false);
             return TypedActionResult.fail(stack);
         }
-        TeamManager.getInstance().addPoints(teamName, 1);
+        TeamManager.getInstance().addPoints(teamName, points);
         ScoreboardManager.getInstance().updateAllScoreboards();
         if (!player.isCreative()) {
             stack.decrement(1);
         }
-        player.sendMessage(Text.literal("1 point ajouté à ta team " + teamName + "!"), false);
+        String message = points == 1
+                ? "1 point ajouté à ta team " + teamName + "!"
+                : points + " points ajoutés à ta team " + teamName + "!";
+        player.sendMessage(Text.literal(message), false);
         return TypedActionResult.success(stack);
     }
 }
