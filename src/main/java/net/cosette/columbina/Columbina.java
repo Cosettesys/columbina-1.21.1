@@ -1,12 +1,14 @@
 package net.cosette.columbina;
 
 import net.cosette.columbina.command.ColumbinaCommands;
+import net.cosette.columbina.daily.DailyResetManager;
 import net.cosette.columbina.item.ModItems;
 import net.cosette.columbina.scoreboard.ScoreboardManager;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.minecraft.server.world.ServerWorld;
@@ -25,7 +27,8 @@ public class Columbina implements ModInitializer {
 			ServerWorld world = server.getOverworld();
 			TeamManager.getInstance().init(world);
 			ScoreboardManager.getInstance().init(world);
-			System.out.println("TeamManager et ScoreboardManager initialisés !");
+			DailyResetManager.getInstance().init(world);
+			System.out.println("DailyResetManager, TeamManager et ScoreboardManager init");
 		});
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			tickCounter++;
@@ -35,5 +38,11 @@ public class Columbina implements ModInitializer {
 			}
 		});
 		ModItems.registerItems();
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			DailyResetManager.getInstance().onPlayerJoin(handler.player);
+		});
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+			DailyResetManager.getInstance().onPlayerDisconnect(handler.player);
+		});
 	}
 }
