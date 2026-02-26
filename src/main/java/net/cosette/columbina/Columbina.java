@@ -5,7 +5,6 @@ import net.cosette.columbina.daily.DailyResetManager;
 import net.cosette.columbina.item.ModItems;
 import net.cosette.columbina.scoreboard.ScoreboardManager;
 import net.fabricmc.api.ModInitializer;
-
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -13,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.minecraft.server.world.ServerWorld;
 import net.cosette.columbina.team.TeamManager;
+import net.cosette.columbina.ColumbinaConfig;
 
 public class Columbina implements ModInitializer {
 	public static final String MOD_ID = "columbina";
@@ -22,6 +22,7 @@ public class Columbina implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Columbina charge!");
+		ColumbinaConfig.load();
 		ColumbinaCommands.register();
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			ServerWorld world = server.getOverworld();

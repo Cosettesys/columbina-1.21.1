@@ -1,5 +1,6 @@
 package net.cosette.columbina.daily;
 
+import net.cosette.columbina.ColumbinaConfig;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -40,7 +41,6 @@ public class DailyResetManager {
     }
     public void performReset(LocalDate today) {
         lastResetDate.set(today);
-
         long resetTs = today.atStartOfDay(PARIS).toEpochSecond();
         DailyResetSavedData data = DailyResetSavedData.get(world);
         data.setLastResetTimestamp(resetTs);
@@ -55,6 +55,15 @@ public class DailyResetManager {
                     Text.literal("§6[COLUMBINA] §eReset quotidien effectué ! Les quêtes quotidiennes ont été réinitialisées !"),
                     false
             );
+            for (ServerPlayerEntity onlinePlayer : server.getPlayerManager().getPlayerList()) {
+                String name = onlinePlayer.getName().getString();
+                for (String questId : ColumbinaConfig.getInstance().getDailyQuestIds()) {
+                    server.getCommandManager().executeWithPrefix(
+                            server.getCommandSource(),
+                            "ftbquests reset_progress " + name + " " + questId
+                    );
+                }
+            }
             long nowTs = Instant.now().getEpochSecond();
             DailyResetSavedData resetData = DailyResetSavedData.get(world);
             for (ServerPlayerEntity onlinePlayer : server.getPlayerManager().getPlayerList()) {
@@ -93,6 +102,12 @@ public class DailyResetManager {
                         world.getServer().getCommandSource(),
                         "tag " + player.getName().getString() + " remove dailyquest"
                 );
+                for (String questId : ColumbinaConfig.getInstance().getDailyQuestIds()) {
+                    world.getServer().getCommandManager().executeWithPrefix(
+                            world.getServer().getCommandSource(),
+                            "ftbquests reset_progress " + player.getName().getString() + " " + questId
+                    );
+                }
                 player.sendMessage(
                         Text.literal("§6[COLUMBINA] §eTa quête quotidienne a été réinitialisée !"),
                         false
