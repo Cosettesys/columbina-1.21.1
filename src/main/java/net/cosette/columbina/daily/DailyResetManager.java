@@ -55,6 +55,11 @@ public class DailyResetManager {
                     Text.literal("§6[COLUMBINA] §eReset quotidien effectué ! Les quêtes quotidiennes ont été réinitialisées !"),
                     false
             );
+            long nowTs = Instant.now().getEpochSecond();
+            DailyResetSavedData resetData = DailyResetSavedData.get(world);
+            for (ServerPlayerEntity onlinePlayer : server.getPlayerManager().getPlayerList()) {
+                resetData.setLastLogin(onlinePlayer.getUuid(), nowTs);
+            }
         });
     }
     public void forceReset() {
@@ -79,6 +84,9 @@ public class DailyResetManager {
         DailyResetSavedData data = DailyResetSavedData.get(world);
         long lastLogin = data.getLastLogin(uuid);
         long lastResetTs = data.getLastResetTimestamp();
+        // DEBUG
+        net.cosette.columbina.Columbina.LOGGER.info("[DailyReset] onPlayerJoin: player={}, lastLogin={}, lastResetTs={}, diff={}",
+                player.getName().getString(), lastLogin, lastResetTs, lastResetTs - lastLogin);
         if (lastLogin < lastResetTs && lastResetTs > 0) {
             world.getServer().execute(() -> {
                 world.getServer().getCommandManager().executeWithPrefix(
@@ -96,5 +104,18 @@ public class DailyResetManager {
     public void onPlayerDisconnect(ServerPlayerEntity player) {
         DailyResetSavedData data = DailyResetSavedData.get(world);
         data.setLastLogin(player.getUuid(), Instant.now().getEpochSecond());
+    }
+    public void fakeOffline(ServerPlayerEntity player) {
+        DailyResetSavedData data = DailyResetSavedData.get(world);
+        // Force le lastLogin à il y a 2 jours
+        long twoDaysAgo = Instant.now().getEpochSecond() - (2 * 24 * 60 * 60);
+        data.setLastLogin(player.getUuid(), twoDaysAgo);
+        player.sendMessage(
+                Text.literal("§7[DEBUG] LastLogin forcé à il y a 2 jours. Reconnecte-toi."),
+                false
+        );
+    }
+    public void testJoin(ServerPlayerEntity player) {
+        onPlayerJoin(player);
     }
 }

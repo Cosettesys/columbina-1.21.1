@@ -606,6 +606,36 @@ public class ColumbinaCommands {
                                                         })
                                         )
                                         .then(
+                                                literal("fakeoffline")
+                                                        .then(
+                                                                argument("player", EntityArgumentType.player())
+                                                                        .executes(ctx -> {
+                                                                            ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "player");
+                                                                            DailyResetManager.getInstance().fakeOffline(player);
+                                                                            ctx.getSource().sendFeedback(
+                                                                                    () -> Text.literal("§7[DEBUG] LastLogin de " + player.getName().getString() + " forcé à il y a 2 jours."),
+                                                                                    true
+                                                                            );
+                                                                            return 1;
+                                                                        })
+                                                        )
+                                        )
+                                        .then(
+                                                literal("testjoin")
+                                                        .then(
+                                                                argument("player", EntityArgumentType.player())
+                                                                        .executes(ctx -> {
+                                                                            ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "player");
+                                                                            DailyResetManager.getInstance().testJoin(player);
+                                                                            ctx.getSource().sendFeedback(
+                                                                                    () -> Text.literal("§7[DEBUG] onPlayerJoin simulé pour " + player.getName().getString()),
+                                                                                    true
+                                                                            );
+                                                                            return 1;
+                                                                        })
+                                                        )
+                                        )
+                                        .then(
                                                 literal("resetplayer")
                                                         .then(
                                                                 argument("player", EntityArgumentType.player())
