@@ -19,6 +19,7 @@ import java.util.UUID;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 import net.cosette.columbina.item.ModItems;
+import net.cosette.columbina.daily.DailyResetManager;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -586,6 +587,36 @@ public class ColumbinaCommands {
                                                                                 );
                                                                             }
                                                                             return success ? 1 : 0;
+                                                                        })
+                                                        )
+                                        )
+                        )
+                        .then(
+                                literal("daily")
+                                        .requires(source -> source.hasPermissionLevel(4))
+                                        .then(
+                                                literal("simulatemidnight")
+                                                        .executes(ctx -> {
+                                                            DailyResetManager.getInstance().forceReset();
+                                                            ctx.getSource().sendFeedback(
+                                                                    () -> Text.literal("§aReset quotidien simulé avec succès."),
+                                                                    true
+                                                            );
+                                                            return 1;
+                                                        })
+                                        )
+                                        .then(
+                                                literal("resetplayer")
+                                                        .then(
+                                                                argument("player", EntityArgumentType.player())
+                                                                        .executes(ctx -> {
+                                                                            ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "player");
+                                                                            DailyResetManager.getInstance().resetPlayer(player);
+                                                                            ctx.getSource().sendFeedback(
+                                                                                    () -> Text.literal("§aQuête journalière réinitialisée pour " + player.getName().getString()),
+                                                                                    true
+                                                                            );
+                                                                            return 1;
                                                                         })
                                                         )
                                         )

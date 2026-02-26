@@ -27,7 +27,7 @@ public class DailyResetManager {
         if (savedTs > 0) {
             lastResetDate.set(Instant.ofEpochSecond(savedTs).atZone(PARIS).toLocalDate());
         } else {
-            lastResetDate.set(LocalDate.now(PARIS).minusDays(1)); // Force reset au prochain check
+            lastResetDate.set(LocalDate.now(PARIS).minusDays(1));
         }
         scheduler.scheduleAtFixedRate(this::checkReset, 0, 1, TimeUnit.MINUTES);
     }
@@ -38,22 +38,41 @@ public class DailyResetManager {
             performReset(today);
         }
     }
-    private void performReset(LocalDate today) {
+    public void performReset(LocalDate today) {
         lastResetDate.set(today);
+
         long resetTs = today.atStartOfDay(PARIS).toEpochSecond();
         DailyResetSavedData data = DailyResetSavedData.get(world);
         data.setLastResetTimestamp(resetTs);
+
         MinecraftServer server = world.getServer();
         server.execute(() -> {
             server.getCommandManager().executeWithPrefix(
                     server.getCommandSource(),
-                    "tag @a remove quete_journaliere"
+                    "tag @a remove dailyquest"
             );
             server.getPlayerManager().broadcast(
-                    Text.literal("§6[COLUMBINA] §eReset quotidien effectué !"),
+                    Text.literal("§6[COLUMBINA] §eReset quotidien effectué ! Les quêtes quotidiennes ont été réinitialisées !"),
                     false
             );
         });
+    }
+    public void forceReset() {
+        performReset(LocalDate.now(PARIS));
+    }
+    public void resetPlayer(ServerPlayerEntity player) {
+        world.getServer().execute(() -> {
+            world.getServer().getCommandManager().executeWithPrefix(
+                    world.getServer().getCommandSource(),
+                    "tag " + player.getName().getString() + " remove dailyquest"
+            );
+            player.sendMessage(
+                    Text.literal("§6[COLUMBINA] §eTa quête quotidienne a été réinitialisée !"),
+                    false
+            );
+        });
+        DailyResetSavedData data = DailyResetSavedData.get(world);
+        data.setLastLogin(player.getUuid(), Instant.now().getEpochSecond());
     }
     public void onPlayerJoin(ServerPlayerEntity player) {
         UUID uuid = player.getUuid();
@@ -64,10 +83,11 @@ public class DailyResetManager {
             world.getServer().execute(() -> {
                 world.getServer().getCommandManager().executeWithPrefix(
                         world.getServer().getCommandSource(),
-                        "tag " + player.getName().getString() + " remove quete_journaliere");
-                        player.sendMessage(
-                                Text.literal("§6[COLUMBINA] §eTa quête journalière a été réinitialisée ! Tu peux en obtenir une nouvelle."),
-                                false
+                        "tag " + player.getName().getString() + " remove dailyquest"
+                );
+                player.sendMessage(
+                        Text.literal("§6[COLUMBINA] §eTa quête quotidienne a été réinitialisée !"),
+                        false
                 );
             });
         }
