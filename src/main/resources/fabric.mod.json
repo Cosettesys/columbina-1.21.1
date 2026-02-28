@@ -37,5 +37,10 @@
 		"minecraft": "~1.21.1",
 		"java": ">=21",
 		"fabric-api": "*"
+	},
+	"suggests": {
+		"cobblemon": ">=1.6",
+		"cobblemon-economy": "*",
+		"safari": "*"
 	}
 }

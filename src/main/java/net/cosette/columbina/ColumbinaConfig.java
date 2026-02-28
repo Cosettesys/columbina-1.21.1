@@ -23,7 +23,6 @@ public class ColumbinaConfig {
                 .preserveInsertionOrder()
                 .build();
         if (!CONFIG_PATH.toFile().exists()) {
-            // Créer la config par défaut avec commentaires
             config.setComment("daily_quest_ids",
                     " Liste des IDs de quêtes FTBQuests journalières.\n" +
                             " Pour trouver l'ID d'une quête : ouvrez l'éditeur FTBQuests en mode créatif,\n" +

@@ -44,6 +44,7 @@ dependencies {
 	implementation "com.electronwill.night-config:toml:3.6.7"
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	compileOnly fileTree(dir: 'libs', include: ['*.jar'])
 	
 }
 
