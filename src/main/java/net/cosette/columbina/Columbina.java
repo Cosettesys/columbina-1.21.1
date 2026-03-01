@@ -25,6 +25,7 @@ public class Columbina implements ModInitializer {
 		ColumbinaConfig.load();
 		ColumbinaCommands.register();
 		SafariCommandBlocker.register();
+		EconomyConfigWriter.register();
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			ServerWorld world = server.getOverworld();
 			TeamManager.getInstance().init(world);

@@ -19,14 +19,11 @@ public class SafariSessionManagerMixin {
             at = @At("HEAD"), cancellable = true, remap = false)
     private static void onTryStartSession(ServerPlayerEntity player, boolean chargeEntry, CallbackInfoReturnable<Boolean> cir) {
         if (!chargeEntry) return;
-
-        // Bloquer si pas autorisé par Columbina
         if (!SafariEntryGuard.AUTHORIZED.get()) {
             player.sendMessage(Text.literal("§c[Safari] Tu dois parler au gardien du Safari pour entrer !"), false);
             cir.setReturnValue(false);
             return;
         }
-
         TeamManager tm = TeamManager.getInstance();
         String team = tm.getPlayerTeam(player);
         if (team == null) {
@@ -42,6 +39,7 @@ public class SafariSessionManagerMixin {
             return;
         }
         tm.addPoints(team, -cost);
+        player.removeCommandTag("safari_permit");
         SafariConfig.get().entrancePrice = 0;
     }
 }

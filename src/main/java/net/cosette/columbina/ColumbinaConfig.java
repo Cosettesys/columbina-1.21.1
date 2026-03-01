@@ -2,6 +2,9 @@ package net.cosette.columbina;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import net.fabricmc.loader.api.FabricLoader;
+
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +13,18 @@ public class ColumbinaConfig {
     private static final Path CONFIG_PATH = FabricLoader.getInstance()
             .getConfigDir()
             .resolve("columbina.toml");
+    private static final String DEFAULT_CONFIG =
+            "# Liste des IDs de quêtes FTBQuests à reset chaque jour.\n" +
+                    "# Pour trouver l'ID : clic droit sur la quête dans l'éditeur FTBQuests > 'Copy ID'.\n" +
+                    "# Exemple : daily_quest_ids = [\"3A2F1B\", \"7C4E2A\"]\n" +
+                    "daily_quest_ids = [\"REMPLACE_PAR_UN_VRAI_ID\"]\n" +
+                    "\n" +
+                    "# Coût en points d'équipe pour entrer dans le Safari Zone.\n" +
+                    "# Mettre à 0 pour désactiver le coût.\n" +
+                    "safari_cost = 500\n";
     private static ColumbinaConfig INSTANCE;
     private List<String> dailyQuestIds = new ArrayList<>();
-    private int safariCost = 10;
+    private int safariCost = 500;
     private ColumbinaConfig() {}
     public static ColumbinaConfig getInstance() {
         if (INSTANCE == null) load();
@@ -20,40 +32,47 @@ public class ColumbinaConfig {
     }
     public static void load() {
         INSTANCE = new ColumbinaConfig();
+        if (!CONFIG_PATH.toFile().exists()) {
+            try {
+                Files.writeString(CONFIG_PATH, DEFAULT_CONFIG);
+                Columbina.LOGGER.info("[Columbina] Config créée dans {}", CONFIG_PATH);
+            } catch (IOException e) {
+                Columbina.LOGGER.error("[Columbina] Impossible de créer la config", e);
+            }
+        }
         CommentedFileConfig config = CommentedFileConfig.builder(CONFIG_PATH)
                 .preserveInsertionOrder()
                 .build();
-        // Charger si le fichier existe, sinon créer
-        if (CONFIG_PATH.toFile().exists()) {
-            config.load();
-        }
-        // Ajouter les champs manquants (fichier nouveau ou ancien)
+        config.load();
         boolean dirty = false;
         if (!config.contains("daily_quest_ids")) {
-            config.setComment("daily_quest_ids",
-                    " Liste des IDs de quêtes FTBQuests journalières.\n" +
-                            " Pour trouver l'ID : clic droit sur la quête dans l'éditeur FTBQuests > 'Copy ID'.\n" +
-                            " Exemple : [ \"3A2F1B\", \"7C4E2A\" ]"
-            );
-            config.set("daily_quest_ids", List.of("REMPLACE_PAR_UN_VRAI_ID"));
-            dirty = true;
+            try {
+                String current = Files.readString(CONFIG_PATH);
+                Files.writeString(CONFIG_PATH, current +
+                        "\n# Liste des IDs de quêtes FTBQuests à reset chaque jour.\n" +
+                        "# Exemple : daily_quest_ids = [\"3A2F1B\", \"7C4E2A\"]\n" +
+                        "daily_quest_ids = [\"REMPLACE_PAR_UN_VRAI_ID\"]\n");
+                config.load();
+            } catch (IOException e) {
+                Columbina.LOGGER.error("[Columbina] Erreur ajout daily_quest_ids", e);
+            }
         }
         if (!config.contains("safari_cost")) {
-            config.setComment("safari_cost",
-                    " Coût en points d'équipe pour entrer dans le Safari Zone.\n" +
-                            " Mettre à 0 pour désactiver le coût."
-            );
-            config.set("safari_cost", 10);
-            dirty = true;
-        }
-        if (dirty) {
-            config.save();
-            Columbina.LOGGER.info("[Columbina] Config mise à jour dans {}", CONFIG_PATH);
+            try {
+                String current = Files.readString(CONFIG_PATH);
+                Files.writeString(CONFIG_PATH, current +
+                        "\n# Coût en points d'équipe pour entrer dans le Safari Zone.\n" +
+                        "# Mettre à 0 pour désactiver le coût.\n" +
+                        "safari_cost = 500\n");
+                config.load();
+            } catch (IOException e) {
+                Columbina.LOGGER.error("[Columbina] Erreur ajout safari_cost", e);
+            }
         }
         INSTANCE.dailyQuestIds = config.getOrElse("daily_quest_ids", new ArrayList<>());
-        INSTANCE.safariCost = config.getOrElse("safari_cost", 10);
+        INSTANCE.safariCost = config.getOrElse("safari_cost", 500);
         config.close();
-        Columbina.LOGGER.info("[Columbina] Config chargée : {} quête(s) journalière(s), coût Safari : {} points",
+        Columbina.LOGGER.info("[Columbina] Config chargée : {} quête(s), coût Safari : {} points",
                 INSTANCE.dailyQuestIds.size(), INSTANCE.safariCost);
     }
     public List<String> getDailyQuestIds() {
