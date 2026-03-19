@@ -6,6 +6,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.cosette.columbina.Columbina;
 import net.cosette.columbina.scoreboard.ScoreboardManager;
+import net.cosette.columbina.shop.ShopConfigManager;
+import net.cosette.columbina.shop.ShopServerLogic;
 import net.cosette.columbina.team.TeamManager;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -689,6 +691,31 @@ public class ColumbinaCommands {
                                                         )
                                         )
                         )
+                        .then(literal("shop")
+                                .requires(src -> src.hasPermissionLevel(2))
+                                .then(literal("open")
+                                        .then(argument("shopId", StringArgumentType.word())
+                                                .then(argument("player", EntityArgumentType.player())
+                                                        .then(literal("buy")
+                                                                .executes(ctx -> {
+                                                                    ServerPlayerEntity p = EntityArgumentType.getPlayer(ctx, "player");
+                                                                    String id = StringArgumentType.getString(ctx, "shopId");
+                                                                    ShopServerLogic.openShop(p, id, true);
+                                                                    return 1;
+                                                                }))
+                                                        .then(literal("sell")
+                                                                .executes(ctx -> {
+                                                                    ServerPlayerEntity p = EntityArgumentType.getPlayer(ctx, "player");
+                                                                    String id = StringArgumentType.getString(ctx, "shopId");
+                                                                    ShopServerLogic.openShop(p, id, false);
+                                                                    return 1;
+                                                                })))))
+                                .then(literal("reload")
+                                        .executes(ctx -> {
+                                            ShopConfigManager.getInstance().reload();
+                                            ctx.getSource().sendFeedback(() -> Text.literal("§aShops rechargés."), true);
+                                            return 1;
+                                        })))
         );
     }
     private static Item getTokenItem(String tokenName) {

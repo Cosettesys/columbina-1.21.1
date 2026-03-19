@@ -3,11 +3,16 @@ package net.cosette.columbina;
 import net.cosette.columbina.command.ColumbinaCommands;
 import net.cosette.columbina.daily.DailyResetManager;
 import net.cosette.columbina.item.ModItems;
+import net.cosette.columbina.network.ShopPayloads;
 import net.cosette.columbina.scoreboard.ScoreboardManager;
+import net.cosette.columbina.shop.ShopConfigManager;
+import net.cosette.columbina.shop.ShopServerLogic;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.minecraft.server.world.ServerWorld;
@@ -23,6 +28,17 @@ public class Columbina implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Columbina charge!");
 		ColumbinaConfig.load();
+		ShopConfigManager.getInstance().init();
+		PayloadTypeRegistry.playS2C().register(
+				ShopPayloads.ShopOpenPayload.ID,
+				ShopPayloads.ShopOpenPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(
+				ShopPayloads.ShopActionPayload.ID,
+				ShopPayloads.ShopActionPayload.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(
+				ShopPayloads.ShopActionPayload.ID,
+				(payload, context) -> context.server().execute(() ->
+						ShopServerLogic.handleAction(context.player(), payload)));
 		ColumbinaCommands.register();
 		SafariCommandBlocker.register();
 		EconomyConfigWriter.register();
