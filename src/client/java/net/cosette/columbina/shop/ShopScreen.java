@@ -50,17 +50,17 @@ public class ShopScreen extends Screen {
         guiTop = (height - GUI_H) / 2;
         // Bouton page précédente
         addDrawableChild(ButtonWidget.builder(Text.literal("<"), btn -> changePage(-1))
-                .dimensions(guiLeft + 8, guiTop + GUI_H - 0, 16, 13)
+                .dimensions(guiLeft + GUI_W - 36, guiTop + GUI_H - 99, 11, 12)
                 .build());
         // Bouton page suivante
         addDrawableChild(ButtonWidget.builder(Text.literal(">"), btn -> changePage(1))
-                .dimensions(guiLeft + GUI_W - 24, guiTop + GUI_H - 0, 16, 13)
+                .dimensions(guiLeft + GUI_W - 25, guiTop + GUI_H - 99, 11, 12)
                 .build());
         // Bouton switch buy/sell
         addDrawableChild(ButtonWidget.builder(
                         Text.literal(payload.isBuy() ? "Vendre" : "Acheter"),
                         btn -> switchMode())
-                .dimensions(guiLeft + GUI_W / 2 - 20, guiTop + GUI_H - 0, 40, 13)
+                .dimensions(guiLeft + 15, guiTop + GUI_H - 99, 40, 12)
                 .build());
     }
     private void changePage(int delta) {
@@ -123,8 +123,8 @@ public class ShopScreen extends Screen {
                 context.drawTooltip(textRenderer, List.of(
                         stack.getName(),
                         Text.literal("§7Prix : §6" + priceStr),
-                        Text.literal("§8Clic gauche : acheter direct"),
-                        Text.literal("§8Clic droit : confirmation"),
+                        Text.literal("§8Clic gauche : acheter"),
+                        Text.literal("§8Clic droit : achat instantané"),
                         Text.literal("§8Molette : changer quantité")
                 ), mouseX, mouseY);
             }
