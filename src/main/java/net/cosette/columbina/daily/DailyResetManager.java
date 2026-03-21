@@ -1,6 +1,7 @@
 package net.cosette.columbina.daily;
 
 import net.cosette.columbina.ColumbinaConfig;
+import net.cosette.columbina.shop.ShopPlayerStockData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -64,6 +65,7 @@ public class DailyResetManager {
                     );
                 }
             }
+            ShopPlayerStockData.get(world).resetAllPlayerStocks();
             long nowTs = Instant.now().getEpochSecond();
             DailyResetSavedData resetData = DailyResetSavedData.get(world);
             for (ServerPlayerEntity onlinePlayer : server.getPlayerManager().getPlayerList()) {

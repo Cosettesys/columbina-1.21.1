@@ -41,6 +41,7 @@
 	"suggests": {
 		"cobblemon": ">=1.6",
 		"cobblemon-economy": "*",
-		"safari": "*"
+		"safari": "*",
+		"cobblesafari": "*"
 	}
 }

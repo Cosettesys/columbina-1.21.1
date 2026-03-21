@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import java.util.List;
@@ -97,6 +98,23 @@ public class ShopServerLogic {
                 player.sendMessage(Text.literal("§cPas assez de place ! (place dispo: " + availableSpace + ", demandé: " + qty + ")"), false);
                 return;
             }
+            if (entry.stock > 0) {
+                ServerWorld world = player.getServerWorld();
+                ShopPlayerStockData stockData = ShopPlayerStockData.get(world);
+                int alreadyBought = stockData.getPurchaseCount(
+                        action.shopId(), entry.item, player.getUuid());
+                if (alreadyBought + qty > entry.stock) {
+                    int remaining = entry.stock - alreadyBought;
+                    player.sendMessage(Text.literal(
+                            "§cTu ne peux acheter que " + entry.stock +
+                                    " exemplaire(s) de cet item par jour. " +
+                                    (remaining > 0 ? "(reste: " + remaining + ")" : "(épuisé)")
+                    ), false);
+                    return;
+                }
+                stockData.incrementPurchase(action.shopId(), entry.item,
+                        player.getUuid(), qty);
+            }
             player.getInventory().insertStack(toGive);
             TeamManager.getInstance().addPoints(teamName, -totalCost);
             player.sendMessage(Text.literal("§aAchat effectué ! (-" + totalCost + " pts)"), false);
@@ -112,6 +130,24 @@ public class ShopServerLogic {
             if (found < qty) {
                 player.sendMessage(Text.literal("§cTu n'as pas assez de cet item ! (besoin: " + qty + ", trouvé: " + found + ")"), false);
                 return;
+            }
+            // Vérification stock de vente par joueur
+            if (entry.stock > 0) {
+                ServerWorld world = player.getServerWorld();
+                ShopPlayerStockData stockData = ShopPlayerStockData.get(world);
+                int alreadySold = stockData.getPurchaseCount(
+                        action.shopId(), "sell_" + entry.item, player.getUuid());
+                if (alreadySold + qty > entry.stock) {
+                    int remaining = entry.stock - alreadySold;
+                    player.sendMessage(Text.literal(
+                            "§cTu ne peux vendre que " + entry.stock +
+                                    " exemplaire(s) de cet item par jour. " +
+                                    (remaining > 0 ? "(reste: " + remaining + ")" : "(épuisé)")
+                    ), false);
+                    return;
+                }
+                stockData.incrementPurchase(action.shopId(), "sell_" + entry.item,
+                        player.getUuid(), qty);
             }
             int toRemove = qty;
             for (int i = 0; i < player.getInventory().size() && toRemove > 0; i++) {

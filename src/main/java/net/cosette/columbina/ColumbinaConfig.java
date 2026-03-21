@@ -19,12 +19,16 @@ public class ColumbinaConfig {
                     "# Exemple : daily_quest_ids = [\"3A2F1B\", \"7C4E2A\"]\n" +
                     "daily_quest_ids = [\"REMPLACE_PAR_UN_VRAI_ID\"]\n" +
                     "\n" +
+                    "# Coût en points pour entrer dans le CobbleSafari.\n" +
+                    "cobblesafari_cost = 300\n" +
+                    "\n" +
                     "# Coût en points d'équipe pour entrer dans le Safari Zone.\n" +
                     "# Mettre à 0 pour désactiver le coût.\n" +
                     "safari_cost = 500\n";
     private static ColumbinaConfig INSTANCE;
     private List<String> dailyQuestIds = new ArrayList<>();
     private int safariCost = 500;
+    private int cobbleSafariCost = 300;
     private ColumbinaConfig() {}
     public static ColumbinaConfig getInstance() {
         if (INSTANCE == null) load();
@@ -71,6 +75,7 @@ public class ColumbinaConfig {
         }
         INSTANCE.dailyQuestIds = config.getOrElse("daily_quest_ids", new ArrayList<>());
         INSTANCE.safariCost = config.getOrElse("safari_cost", 500);
+        INSTANCE.cobbleSafariCost = config.getOrElse("cobblesafari_cost", 300);
         config.close();
         Columbina.LOGGER.info("[Columbina] Config chargée : {} quête(s), coût Safari : {} points",
                 INSTANCE.dailyQuestIds.size(), INSTANCE.safariCost);
@@ -81,4 +86,5 @@ public class ColumbinaConfig {
     public int getSafariCost() {
         return safariCost;
     }
+    public int getCobbleSafariCost() { return cobbleSafariCost; }
 }

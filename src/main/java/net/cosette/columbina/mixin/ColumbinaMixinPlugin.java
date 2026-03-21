@@ -19,6 +19,9 @@ public class ColumbinaMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.contains("CobblemonListenersMixin")) {
             return FabricLoader.getInstance().isModLoaded("cobblemon-economy");
         }
+        if (mixinClassName.contains("CobbleSafariMixin")) {
+            return FabricLoader.getInstance().isModLoaded("cobblesafari");
+        }
         return true;
     }
     @Override public void onLoad(String mixinPackage) {}
