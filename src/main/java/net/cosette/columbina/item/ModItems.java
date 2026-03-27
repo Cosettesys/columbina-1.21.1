@@ -20,6 +20,7 @@ public class ModItems {
     public static final Item TOKEN_MEDIUM = createToken(10);
     public static final Item TOKEN_BIG = createToken(100);
     public static final Item TOKEN_ENORMOUS = createToken(1000);
+    public static final Item IRIS_ICON = new Item(new Item.Settings());
     private static Item createToken(int points) {
         return new Item(new Item.Settings()) {
             @Override
@@ -37,6 +38,7 @@ public class ModItems {
         Registry.register(Registries.ITEM, Identifier.of(Columbina.MOD_ID, "token_medium"), TOKEN_MEDIUM);
         Registry.register(Registries.ITEM, Identifier.of(Columbina.MOD_ID, "token_big"), TOKEN_BIG);
         Registry.register(Registries.ITEM, Identifier.of(Columbina.MOD_ID, "token_enormous"), TOKEN_ENORMOUS);
+        Registry.register(Registries.ITEM, Identifier.of(Columbina.MOD_ID, "iris_icon"), IRIS_ICON);
     }
     private static TypedActionResult<ItemStack> handleTokenUse(ServerPlayerEntity player, ItemStack stack, int points) {
         String teamName = TeamManager.getInstance().getPlayerTeam(player);
