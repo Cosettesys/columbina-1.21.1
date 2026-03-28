@@ -61,7 +61,7 @@ public class DailyResetManager {
                 for (String questId : ColumbinaConfig.getInstance().getDailyQuestIds()) {
                     server.getCommandManager().executeWithPrefix(
                             server.getCommandSource(),
-                            "ftbquests reset_progress " + name + " " + questId
+                            "ftbquests change_progress " + name + " reset " + questId
                     );
                 }
             }
@@ -107,7 +107,7 @@ public class DailyResetManager {
                 for (String questId : ColumbinaConfig.getInstance().getDailyQuestIds()) {
                     world.getServer().getCommandManager().executeWithPrefix(
                             world.getServer().getCommandSource(),
-                            "ftbquests reset_progress " + player.getName().getString() + " " + questId
+                            "ftbquests change_progress " + player.getName().getString() + " reset " + questId
                     );
                 }
                 player.sendMessage(
