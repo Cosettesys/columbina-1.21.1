@@ -5,7 +5,6 @@ import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.cosette.columbina.Columbina;
-import net.cosette.columbina.ColumbinaConfig;
 import net.cosette.columbina.scoreboard.ScoreboardManager;
 import net.cosette.columbina.shop.ShopConfigManager;
 import net.cosette.columbina.shop.ShopServerLogic;
@@ -25,7 +24,6 @@ import net.cosette.columbina.item.ModItems;
 import net.cosette.columbina.daily.DailyResetManager;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.cosette.columbina.SafariEntryGuard;
 
 public class ColumbinaCommands {
     public static void register() {
@@ -643,41 +641,6 @@ public class ColumbinaCommands {
                                                                                     true
                                                                             );
                                                                             return 1;
-                                                                        })
-                                                        )
-                                        )
-                        )
-                        .then(
-                                literal("safari")
-                                        .requires(source -> source.hasPermissionLevel(4))
-                                        .then(
-                                                literal("enter")
-                                                        .then(
-                                                                argument("player", EntityArgumentType.player())
-                                                                        .executes(ctx -> {
-                                                                            ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "player");
-                                                                            SafariEntryGuard.AUTHORIZED.set(true);
-                                                                            boolean success = false;
-                                                                            try {
-                                                                                for (java.lang.reflect.Method m : com.safari.session.SafariSessionManager.class.getMethods()) {
-                                                                                    if (m.getName().equals("tryStartSession")) {
-                                                                                        Object result = m.invoke(null, player, true);
-                                                                                        success = result instanceof Boolean && (Boolean) result;
-                                                                                        break;
-                                                                                    }
-                                                                                }
-                                                                            } catch (Exception e) {
-                                                                                Columbina.LOGGER.error("[Columbina] Erreur Safari", e);
-                                                                            } finally {
-                                                                                SafariEntryGuard.AUTHORIZED.set(false);
-                                                                            }
-                                                                            if (success) {
-                                                                                ctx.getSource().sendFeedback(
-                                                                                        () -> Text.literal("§a[Safari] Session démarrée pour " + player.getName().getString()),
-                                                                                        true
-                                                                                );
-                                                                            }
-                                                                            return success ? 1 : 0;
                                                                         })
                                                         )
                                         )

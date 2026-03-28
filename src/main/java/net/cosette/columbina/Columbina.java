@@ -40,8 +40,6 @@ public class Columbina implements ModInitializer {
 				(payload, context) -> context.server().execute(() ->
 						ShopServerLogic.handleAction(context.player(), payload)));
 		ColumbinaCommands.register();
-		SafariCommandBlocker.register();
-		EconomyConfigWriter.register();
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			ServerWorld world = server.getOverworld();
 			TeamManager.getInstance().init(world);

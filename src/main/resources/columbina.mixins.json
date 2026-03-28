@@ -4,8 +4,7 @@
 	"compatibilityLevel": "JAVA_21",
 	"plugin": "net.cosette.columbina.mixin.ColumbinaMixinPlugin",
 	"mixins": [
-		"ExampleMixin",
-		"SafariSessionManagerMixin"
+		"ExampleMixin"
 	],
 	"injectors": {
 		"defaultRequire": 0
