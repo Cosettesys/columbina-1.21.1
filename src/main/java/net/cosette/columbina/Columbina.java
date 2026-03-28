@@ -4,6 +4,10 @@ import net.cosette.columbina.command.ColumbinaCommands;
 import net.cosette.columbina.daily.DailyResetManager;
 import net.cosette.columbina.item.ModItems;
 import net.cosette.columbina.network.ShopPayloads;
+import net.cosette.columbina.poketopia.PoketopiaIslandPlacer;
+import net.cosette.columbina.poketopia.PoketopiaManager;
+import net.cosette.columbina.portal.ModBlocks;
+import net.cosette.columbina.portal.PoketopiaPortalBlock;
 import net.cosette.columbina.scoreboard.ScoreboardManager;
 import net.cosette.columbina.shop.ShopConfigManager;
 import net.cosette.columbina.shop.ShopServerLogic;
@@ -17,18 +21,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.minecraft.server.world.ServerWorld;
 import net.cosette.columbina.team.TeamManager;
-import net.cosette.columbina.ColumbinaConfig;
 
 public class Columbina implements ModInitializer {
 	public static final String MOD_ID = "columbina";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	private static final int SCOREBOARD_UPDATE_INTERVAL = 100; // 5 secondes (20 ticks = 1 seconde)
 	private int tickCounter = 0;
+
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Columbina charge!");
 		ColumbinaConfig.load();
 		ShopConfigManager.getInstance().init();
+
 		PayloadTypeRegistry.playS2C().register(
 				ShopPayloads.ShopOpenPayload.ID,
 				ShopPayloads.ShopOpenPayload.CODEC);
@@ -39,25 +44,41 @@ public class Columbina implements ModInitializer {
 				ShopPayloads.ShopActionPayload.ID,
 				(payload, context) -> context.server().execute(() ->
 						ShopServerLogic.handleAction(context.player(), payload)));
+
 		ColumbinaCommands.register();
+
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			ServerWorld world = server.getOverworld();
 			TeamManager.getInstance().init(world);
 			ScoreboardManager.getInstance().init(world);
 			DailyResetManager.getInstance().init(world);
-			System.out.println("DailyResetManager, TeamManager et ScoreboardManager init");
+			LOGGER.info("DailyResetManager, TeamManager et ScoreboardManager init");
+
+			// Place l'île de spawn Poketopia si ce n'est pas encore fait
+			PoketopiaIslandPlacer.tryPlaceIsland(server);
 		});
+
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			tickCounter++;
 			if (tickCounter >= SCOREBOARD_UPDATE_INTERVAL) {
 				tickCounter = 0;
 				ScoreboardManager.getInstance().updateAllScoreboards();
 			}
+			PoketopiaPortalBlock.tickCooldowns(); // ← ajoute cette ligne
 		});
+
 		ModItems.registerItems();
+		ModBlocks.registerBlocks();
+
+		// ── Player connection events ──────────────────────────────────────────
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			DailyResetManager.getInstance().onPlayerJoin(handler.player);
+
+			// Retarder d'un tick : le joueur doit être pleinement enregistré
+			// en overworld avant toute téléportation cross-dimension
+			server.execute(() -> PoketopiaManager.getInstance().onFirstJoin(handler.player));
 		});
+
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			DailyResetManager.getInstance().onPlayerDisconnect(handler.player);
 		});

@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_21",
 	"plugin": "net.cosette.columbina.mixin.ColumbinaMixinPlugin",
 	"mixins": [
-		"ExampleMixin"
+		"ExampleMixin",
+		"PlayerRespawnMixin"
 	],
 	"injectors": {
 		"defaultRequire": 0

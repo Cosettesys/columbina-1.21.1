@@ -5,6 +5,8 @@ import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.cosette.columbina.Columbina;
+import net.cosette.columbina.ColumbinaConfig;
+import net.cosette.columbina.poketopia.PoketopiaManager;
 import net.cosette.columbina.scoreboard.ScoreboardManager;
 import net.cosette.columbina.shop.ShopConfigManager;
 import net.cosette.columbina.shop.ShopServerLogic;
@@ -13,6 +15,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import java.util.List;
@@ -673,6 +676,42 @@ public class ColumbinaCommands {
                                         }
                                         )
                                 )
+                        )
+                        .then(
+                                literal("spawn")
+                                        .executes(ctx -> {
+                                            ServerCommandSource source = ctx.getSource();
+                                            ServerPlayerEntity player;
+                                            try {
+                                                player = source.getPlayerOrThrow();
+                                            } catch (Exception e) {
+                                                source.sendError(Text.literal("Cette commande doit être exécutée par un joueur."));
+                                                return 0;
+                                            }
+                                            PoketopiaManager.getInstance().onFirstJoin(player);
+                                            // onFirstJoin skip si le tag est déjà là — on force la téléportation
+                                            ServerWorld poketopia = source.getServer().getWorld(PoketopiaManager.POKETOPIA_KEY);
+                                            if (poketopia == null) {
+                                                source.sendError(Text.literal("§cDimension Poketopia introuvable."));
+                                                return 0;
+                                            }
+                                            source.getServer().execute(() -> {
+                                                ColumbinaConfig cfg = ColumbinaConfig.getInstance();
+                                                double x = cfg.getPoketopiaSpawnX() + 0.5;
+                                                double y = cfg.getPoketopiaSpawnY();
+                                                double z = cfg.getPoketopiaSpawnZ() + 0.5;
+                                                float yaw = PoketopiaManager.directionToYaw(cfg.getPoketopiaSpawnFacing());
+                                                net.minecraft.world.TeleportTarget target = new net.minecraft.world.TeleportTarget(
+                                                        poketopia,
+                                                        new net.minecraft.util.math.Vec3d(x, y, z),
+                                                        net.minecraft.util.math.Vec3d.ZERO,
+                                                        yaw, 0f,
+                                                        net.minecraft.world.TeleportTarget.NO_OP
+                                                );
+                                                player.teleportTo(target);
+                                            });
+                                            return 1;
+                                        })
                         )
         );
     }

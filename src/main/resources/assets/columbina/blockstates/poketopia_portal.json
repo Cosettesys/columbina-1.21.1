@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "axis=x": { "model": "columbina:block/poketopia_portal" },
+    "axis=z": { "model": "columbina:block/poketopia_portal", "y": 90 }
+  }
+}
