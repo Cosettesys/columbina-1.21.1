@@ -12,7 +12,6 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 
 public class ModBlocks {
-
     public static final PoketopiaPortalBlock POKETOPIA_PORTAL = registerBlock(
             "poketopia_portal",
             new PoketopiaPortalBlock(
@@ -25,7 +24,6 @@ public class ModBlocks {
                             .dropsNothing()
             )
     );
-
     private static <T extends Block> T registerBlock(String name, T block) {
         Registry.register(Registries.ITEM,
                 Identifier.of(Columbina.MOD_ID, name),
@@ -33,6 +31,5 @@ public class ModBlocks {
         return Registry.register(Registries.BLOCK,
                 Identifier.of(Columbina.MOD_ID, name), block);
     }
-
     public static void registerBlocks() {}
 }

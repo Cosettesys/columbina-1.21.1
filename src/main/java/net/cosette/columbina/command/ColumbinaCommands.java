@@ -689,7 +689,6 @@ public class ColumbinaCommands {
                                                 return 0;
                                             }
                                             PoketopiaManager.getInstance().onFirstJoin(player);
-                                            // onFirstJoin skip si le tag est déjà là — on force la téléportation
                                             ServerWorld poketopia = source.getServer().getWorld(PoketopiaManager.POKETOPIA_KEY);
                                             if (poketopia == null) {
                                                 source.sendError(Text.literal("§cDimension Poketopia introuvable."));
