@@ -8,16 +8,17 @@ import java.util.*;
 
 public class ScoreboardSavedData extends PersistentState {
     public static final String NAME = "columbina_scoreboards";
-    // Données des scoreboards : nom -> (entityId, type, teamName)
     private final Map<String, ScoreboardEntry> scoreboards = new HashMap<>();
     public static class ScoreboardEntry {
         public UUID entityId;
-        public String type; // "team" ou "list"
-        public String teamName; // null si type = "list"
-        public ScoreboardEntry(UUID entityId, String type, String teamName) {
+        public String type;
+        public String teamName;
+        public String dimensionKey;
+        public ScoreboardEntry(UUID entityId, String type, String teamName, String dimensionKey) {
             this.entityId = entityId;
             this.type = type;
             this.teamName = teamName;
+            this.dimensionKey = dimensionKey;
         }
     }
     public static ScoreboardSavedData fromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup lookup) {
@@ -28,22 +29,21 @@ public class ScoreboardSavedData extends PersistentState {
             UUID entityId = entryTag.getUuid("EntityId");
             String type = entryTag.getString("Type");
             String teamName = entryTag.contains("TeamName") ? entryTag.getString("TeamName") : null;
-            data.scoreboards.put(name, new ScoreboardEntry(entityId, type, teamName));
+            String dimensionKey = entryTag.contains("DimensionKey") ? entryTag.getString("DimensionKey") : "minecraft:overworld";
+            data.scoreboards.put(name, new ScoreboardEntry(entityId, type, teamName, dimensionKey));
         }
         return data;
     }
-
     @Override
     public NbtCompound writeNbt(NbtCompound tag, RegistryWrapper.WrapperLookup lookup) {
         NbtCompound scoreboardsTag = new NbtCompound();
         for (Map.Entry<String, ScoreboardEntry> entry : scoreboards.entrySet()) {
             NbtCompound entryTag = new NbtCompound();
-            ScoreboardEntry scoreboardEntry = entry.getValue();
-            entryTag.putUuid("EntityId", scoreboardEntry.entityId);
-            entryTag.putString("Type", scoreboardEntry.type);
-            if (scoreboardEntry.teamName != null) {
-                entryTag.putString("TeamName", scoreboardEntry.teamName);
-            }
+            ScoreboardEntry e = entry.getValue();
+            entryTag.putUuid("EntityId", e.entityId);
+            entryTag.putString("Type", e.type);
+            if (e.teamName != null) entryTag.putString("TeamName", e.teamName);
+            entryTag.putString("DimensionKey", e.dimensionKey != null ? e.dimensionKey : "minecraft:overworld");
             scoreboardsTag.put(entry.getKey(), entryTag);
         }
         tag.put("Scoreboards", scoreboardsTag);

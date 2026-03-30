@@ -503,7 +503,7 @@ public class ColumbinaCommands {
                                                                                                                                             ScoreboardManager sm = ScoreboardManager.getInstance();
                                                                                                                                             boolean success;
                                                                                                                                             if ("list".equalsIgnoreCase(teamOrList)) {
-                                                                                                                                                success = sm.spawnListScoreboard(name, x, y, z);
+                                                                                                                                                success = sm.spawnListScoreboard(name, x, y, z, ctx.getSource().getWorld());
                                                                                                                                                 if (success) {
                                                                                                                                                     ctx.getSource().sendFeedback(
                                                                                                                                                             () -> Text.literal("§aScoreboard de classement '" + name + "' créé à " + x + ", " + y + ", " + z),
@@ -515,7 +515,7 @@ public class ColumbinaCommands {
                                                                                                                                                     );
                                                                                                                                                 }
                                                                                                                                             } else {
-                                                                                                                                                success = sm.spawnTeamScoreboard(name, x, y, z, teamOrList);
+                                                                                                                                                success = sm.spawnTeamScoreboard(name, x, y, z, teamOrList, ctx.getSource().getWorld());
                                                                                                                                                 if (success) {
                                                                                                                                                     ctx.getSource().sendFeedback(
                                                                                                                                                             () -> Text.literal("§aScoreboard pour l'équipe '" + teamOrList + "' créé à " + x + ", " + y + ", " + z),

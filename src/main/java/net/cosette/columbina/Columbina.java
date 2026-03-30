@@ -25,15 +25,13 @@ import net.cosette.columbina.team.TeamManager;
 public class Columbina implements ModInitializer {
 	public static final String MOD_ID = "columbina";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	private static final int SCOREBOARD_UPDATE_INTERVAL = 100; // 5 secondes (20 ticks = 1 seconde)
+	private static final int SCOREBOARD_UPDATE_INTERVAL = 100;
 	private int tickCounter = 0;
-
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Columbina charge!");
 		ColumbinaConfig.load();
 		ShopConfigManager.getInstance().init();
-
 		PayloadTypeRegistry.playS2C().register(
 				ShopPayloads.ShopOpenPayload.ID,
 				ShopPayloads.ShopOpenPayload.CODEC);
@@ -44,41 +42,29 @@ public class Columbina implements ModInitializer {
 				ShopPayloads.ShopActionPayload.ID,
 				(payload, context) -> context.server().execute(() ->
 						ShopServerLogic.handleAction(context.player(), payload)));
-
 		ColumbinaCommands.register();
-
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			ServerWorld world = server.getOverworld();
 			TeamManager.getInstance().init(world);
 			ScoreboardManager.getInstance().init(world);
 			DailyResetManager.getInstance().init(world);
 			LOGGER.info("DailyResetManager, TeamManager et ScoreboardManager init");
-
-			// Place l'île de spawn Poketopia si ce n'est pas encore fait
 			PoketopiaIslandPlacer.tryPlaceIsland(server);
 		});
-
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			tickCounter++;
 			if (tickCounter >= SCOREBOARD_UPDATE_INTERVAL) {
 				tickCounter = 0;
 				ScoreboardManager.getInstance().updateAllScoreboards();
 			}
-			PoketopiaPortalBlock.tickCooldowns(); // ← ajoute cette ligne
+			PoketopiaPortalBlock.tickCooldowns();
 		});
-
 		ModItems.registerItems();
 		ModBlocks.registerBlocks();
-
-		// ── Player connection events ──────────────────────────────────────────
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			DailyResetManager.getInstance().onPlayerJoin(handler.player);
-
-			// Retarder d'un tick : le joueur doit être pleinement enregistré
-			// en overworld avant toute téléportation cross-dimension
 			server.execute(() -> PoketopiaManager.getInstance().onFirstJoin(handler.player));
 		});
-
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			DailyResetManager.getInstance().onPlayerDisconnect(handler.player);
 		});
