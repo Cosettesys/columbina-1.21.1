@@ -50,6 +50,7 @@ public class Columbina implements ModInitializer {
 			DailyResetManager.getInstance().init(world);
 			LOGGER.info("DailyResetManager, TeamManager et ScoreboardManager init");
 			PoketopiaIslandPlacer.tryPlaceIsland(server);
+			PoketopiaManager.getInstance().registerVoidRescue();
 		});
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			tickCounter++;

@@ -46,10 +46,6 @@ dependencies {
 	implementation "com.electronwill.night-config:toml:3.6.7"
 
 	compileOnly files("libs/Cobblemon-fabric-1.7.3+1.21.1-dev-shadow.jar")
-	compileOnly fileTree(dir: 'libs', include: ['cobblemon-economy*.jar', 'safari*.jar'])
-	compileOnly files("libs/cobblesafari-fabric-1.21.1-0.1.5.jar")
-	//compileOnly files("libs/Cobblemon-fabric-1.7.3+1.21.1-dev-shadow.jar")
-	//compileOnly fileTree(dir: 'libs', include: ['cobblemon-economy*.jar', 'safari*.jar'])
 }
 
 processResources {

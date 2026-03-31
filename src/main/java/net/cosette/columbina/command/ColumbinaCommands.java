@@ -712,6 +712,19 @@ public class ColumbinaCommands {
                                             return 1;
                                         })
                         )
+                        .then(
+                                literal("reload")
+                                        .requires(source -> source.hasPermissionLevel(2))
+                                        .executes(ctx -> {
+                                            ColumbinaConfig.load();
+                                            ShopConfigManager.getInstance().init();
+                                            ctx.getSource().sendFeedback(
+                                                    () -> Text.literal("§a[Columbina] Config rechargée."),
+                                                    true
+                                            );
+                                            return 1;
+                                        })
+                        )
         );
     }
     private static Item getTokenItem(String tokenName) {
