@@ -46,7 +46,6 @@ dependencies {
 	implementation "com.electronwill.night-config:toml:3.6.7"
 
 	compileOnly files("libs/Cobblemon-fabric-1.7.3+1.21.1-dev-shadow.jar")
-	localRuntime files("libs/Cobblemon-fabric-1.7.3+1.21.1-dev-shadow.jar")
 }
 
 processResources {

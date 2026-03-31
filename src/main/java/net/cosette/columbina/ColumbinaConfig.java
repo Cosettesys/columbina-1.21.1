@@ -37,7 +37,10 @@ public class ColumbinaConfig {
                     "poketopia_spawn_facing = \"south\"\n" +
                     "\n" +
                     "# Coordonnée Y en dessous de laquelle le joueur est téléporté au spawn overworld.\n" +
-                    "poketopia_void_y = -64\n";
+                    "poketopia_void_y = -64\n" +
+                    "# Points gagnés par l'équipe à la capture d'un Pokémon.\n" +
+                    "capture_points = 50\n";
+
     private static ColumbinaConfig INSTANCE;
     private List<String> dailyQuestIds = new ArrayList<>();
     private int safariCost = 500;
@@ -88,6 +91,12 @@ public class ColumbinaConfig {
                 "poketopia_void_y",
                 "\n# Coordonnée Y en dessous de laquelle le joueur est téléporté au spawn overworld.\n" +
                         "poketopia_void_y = -64\n");
+        addMissingKey(config,
+                "capture_points",
+                "\n# Points gagnés par l'équipe à la capture d'un Pokémon.\n" +
+                        "capture_points = 50\n");
+// ...
+        INSTANCE.capturePoints = config.getOrElse("capture_points", 50);
         INSTANCE.dailyQuestIds    = config.getOrElse("daily_quest_ids", new ArrayList<>());
         INSTANCE.safariCost       = config.getOrElse("safari_cost", 500);
         INSTANCE.cobbleSafariCost = config.getOrElse("cobblesafari_cost", 300);
@@ -123,4 +132,6 @@ public class ColumbinaConfig {
     public int    getPoketopiaSpawnZ()        { return poketopiaSpawnZ; }
     public String getPoketopiaSpawnFacing()   { return poketopiaSpawnFacing; }
     public int    getPoketopiaVoidY()         { return poketopiaVoidY; }
+    private int capturePoints = 50;
+    public int getCapturePoints() { return capturePoints; }
 }
