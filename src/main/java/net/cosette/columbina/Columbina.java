@@ -1,6 +1,7 @@
 package net.cosette.columbina;
 
 import net.cosette.columbina.command.ColumbinaCommands;
+import net.cosette.columbina.compat.CobblemonCompat;
 import net.cosette.columbina.daily.DailyResetManager;
 import net.cosette.columbina.item.ModItems;
 import net.cosette.columbina.network.ShopPayloads;
@@ -51,6 +52,7 @@ public class Columbina implements ModInitializer {
 			LOGGER.info("DailyResetManager, TeamManager et ScoreboardManager init");
 			PoketopiaIslandPlacer.tryPlaceIsland(server);
 			PoketopiaManager.getInstance().registerVoidRescue();
+			CobblemonCompat.tryRegister();
 		});
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			tickCounter++;

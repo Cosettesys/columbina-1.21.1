@@ -174,4 +174,7 @@ public class TeamManager {
         }
         return "§" + Integer.toHexString(colorIndex).toLowerCase();
     }
+    public String getTeamOf(UUID uuid) {
+        return playerTeams.get(uuid);
+    }
 }
