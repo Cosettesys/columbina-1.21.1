@@ -12,18 +12,15 @@ public class ColumbinaMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (mixinClassName.contains("SafariSessionManagerMixin")
-                || mixinClassName.contains("SafariCommandMixin")) {
-            return FabricLoader.getInstance().isModLoaded("safari");
-        }
-        if (mixinClassName.contains("CobblemonListenersMixin")) {
-            return FabricLoader.getInstance().isModLoaded("cobblemon-economy");
+        if (mixinClassName.contains("SummaryKeyMixin")) {
+            return FabricLoader.getInstance().isModLoaded("cobblemon");
         }
         if (mixinClassName.contains("CobbleSafariMixin")) {
             return FabricLoader.getInstance().isModLoaded("cobblesafari");
         }
         return true;
     }
+
     @Override public void onLoad(String mixinPackage) {}
     @Override public String getRefMapperConfig() { return null; }
     @Override public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {}

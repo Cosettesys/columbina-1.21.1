@@ -20,6 +20,11 @@ public class CobblemonEventWrapper {
                 .stream()
                 .anyMatch(label -> label.toString().contains("legendary"));
     }
+    public static boolean isMythical(PokemonCapturedEvent event) {
+        return event.getPokemon().getSpecies().getLabels()
+                .stream()
+                .anyMatch(label -> label.toString().contains("mythical"));
+    }
     public static String getSpeciesName(PokemonCapturedEvent event) {
         return event.getPokemon().getSpecies().getName();
     }
