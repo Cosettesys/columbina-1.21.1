@@ -8,9 +8,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.text.Text
 
 object CobblemonListeners {
-
     private var server: MinecraftServer? = null
-
     fun register(server: MinecraftServer) {
         this.server = server
         CobblemonEvents.POKEMON_CAPTURED.subscribe { event ->
@@ -20,12 +18,16 @@ object CobblemonListeners {
             val cfg = ColumbinaConfig.getInstance()
             val species = CobblemonEventWrapper.getSpeciesName(event)
             val limit = cfg.captureLimitPerSpecies
+            val currentCount: Int
             if (limit > 0) {
                 val overworld = server?.overworld ?: return@subscribe
                 val data = CaptureCountSavedData.get(overworld)
                 val count = data.getCount(player.uuid, species)
-                if (count >= limit) return@subscribe // pas de points, pas de message
+                if (count >= limit) return@subscribe
                 data.increment(player.uuid, species)
+                currentCount = count + 1
+            } else {
+                currentCount = 0
             }
             val isShiny = CobblemonEventWrapper.isShiny(event)
             val isLegendary = CobblemonEventWrapper.isLegendary(event)
@@ -40,10 +42,6 @@ object CobblemonListeners {
             if (isLegendary) tags.add("⭐ Légendaire")
             if (isMythical) tags.add("🌟 Mythique")
             val tagStr = if (tags.isEmpty()) "" else " §7(${tags.joinToString(", ")}§7)"
-            // Calcul du count après incrément pour l'affichage
-            val currentCount = if (limit > 0) {
-                CaptureCountSavedData.get(server?.overworld ?: return@subscribe).getCount(player.uuid, species)
-            } else 0
             val countStr = if (limit > 0) " §8(${currentCount}/${limit})" else ""
             val msg = cfg.captureMessage
                 .replace("{pokemon}", species)
