@@ -4,6 +4,7 @@ import com.cobblemon.mod.common.api.events.pokemon.PokemonCapturedEvent;
 import com.cobblemon.mod.common.api.events.pokemon.RidePokemonEvent;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+
 public class CobblemonEventWrapper {
     public static ServerPlayerEntity getPlayer(PokemonCapturedEvent event) {
         try {
@@ -29,7 +30,7 @@ public class CobblemonEventWrapper {
     public static String getSpeciesName(PokemonCapturedEvent event) {
         return event.getPokemon().getSpecies().getName();
     }
-    public static ServerPlayerEntity getPlayer(RidePokemonEvent event) {
+    public static ServerPlayerEntity getPlayerRIDE(RidePokemonEvent event) {
         try {
             Object player = RidePokemonEvent.class.getMethod("getPlayer").invoke(event);
             return (ServerPlayerEntity) player;

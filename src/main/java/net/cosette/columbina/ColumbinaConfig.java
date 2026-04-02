@@ -47,7 +47,9 @@ public class ColumbinaConfig {
                     "capture_points_mythical_bonus = 10\n" +
                     "# Message envoyé au joueur après une capture.\n" +
                     "# Variables : {pokemon}, {points}, {team}, {tags}\n" +
-                    "capture_message = \"§a+{points} pts §7pour l'équipe §r{team} §7— capture de §r{pokemon}{tags}{count}\"\n";
+                    "capture_message = \"§a+{points} pts §7pour l'équipe §r{team} §7— capture de §r{pokemon}{tags}{count}\"\n"+
+                    "# Si false, les joueurs ne peuvent pas monter un Pokémon dans la dimension Poketopia.\n" +
+                    "poketopia_ride_allowed = false\n";
     private static ColumbinaConfig INSTANCE;
     private List<String> dailyQuestIds = new ArrayList<>();
     private int safariCost = 500;
@@ -62,6 +64,7 @@ public class ColumbinaConfig {
     public int capturePointsLegendaryBonus = 10;
     public int capturePointsMythicalBonus = 10;
     public String captureMessage = "§a+{points} pts §7pour l'équipe §r{team} §7— capture de §r{pokemon}{tags}{count}";
+    public boolean poketopiaRideAllowed = false;
     public int captureLimitPerSpecies = 3;
     private ColumbinaConfig() {}
     public static ColumbinaConfig getInstance() {
@@ -106,6 +109,9 @@ public class ColumbinaConfig {
                 "\n# Nombre max de captures d'une même espèce donnant des points par joueur.\n" +
                         "# Mettre à 0 pour désactiver la limite.\n" +
                         "capture_limit_per_species = 3\n");
+        addMissingKey(config, "poketopia_ride_allowed",
+                "\n# Si false, les joueurs ne peuvent pas monter un Pokémon dans la dimension Poketopia.\n" +
+                        "poketopia_ride_allowed = false\n");
         INSTANCE.dailyQuestIds        = config.getOrElse("daily_quest_ids", new ArrayList<>());
         INSTANCE.safariCost           = config.getOrElse("safari_cost", 500);
         INSTANCE.cobbleSafariCost     = config.getOrElse("cobblesafari_cost", 300);
@@ -121,6 +127,7 @@ public class ColumbinaConfig {
         INSTANCE.captureMessage              = config.getOrElse("capture_message",
                 "§a+{points} pts §7pour l'équipe §r{team} §7— capture de §r{pokemon}{tags}{count}");
         INSTANCE.captureLimitPerSpecies = config.getOrElse("capture_limit_per_species", 3);
+        INSTANCE.poketopiaRideAllowed = config.getOrElse("poketopia_ride_allowed", false);
         config.close();
         Columbina.LOGGER.info("[Columbina] Config chargée.");
     }

@@ -57,9 +57,13 @@ object CobblemonListeners {
             )
         }
         CobblemonEvents.RIDE_EVENT_PRE.subscribe { event ->
-            val player = CobblemonEventWrapper.getPlayer(event) ?: return@subscribe
-            if (player.world.dimension.toString() == "columbina:poketopia") {
+            val player = CobblemonEventWrapper.getPlayerRIDE(event) ?: return@subscribe
+            val cfg = ColumbinaConfig.getInstance()
+            if (cfg.poketopiaRideAllowed) return@subscribe
+            val dimensionValue = player.world.registryKey.value
+            if (dimensionValue.namespace == "columbina" && dimensionValue.path == "poketopia") {
                 event.cancel()
+                player.sendMessage(Text.literal("§cVous ne pouvez pas monter un Pokémon dans cette dimension."), false)
             }
         }
         Columbina.LOGGER.info("[Columbina] Listeners Cobblemon enregistrés.")
