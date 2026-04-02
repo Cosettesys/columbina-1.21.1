@@ -5,7 +5,8 @@
 	"plugin": "net.cosette.columbina.mixin.ColumbinaMixinPlugin",
 	"mixins": [
 		"ExampleMixin",
-		"PlayerRespawnMixin"
+		"PlayerRespawnMixin",
+		"CobbleSafariTeleporterMixin"
 	],
 	"injectors": {
 		"defaultRequire": 0
