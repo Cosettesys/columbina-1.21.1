@@ -5,6 +5,7 @@ import net.cosette.columbina.Columbina
 import net.cosette.columbina.ColumbinaConfig
 import net.cosette.columbina.team.TeamManager
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 
 object CobblemonListeners {
@@ -54,6 +55,12 @@ object CobblemonListeners {
                 "[Columbina] {} capture {} → +{} pts à l'équipe {}",
                 player.nameForScoreboard, species, points, team
             )
+        }
+        CobblemonEvents.RIDE_EVENT_PRE.subscribe { event ->
+            val player = CobblemonEventWrapper.getPlayer(event) ?: return@subscribe
+            if (player.world.dimension.toString() == "columbina:poketopia") {
+                event.cancel()
+            }
         }
         Columbina.LOGGER.info("[Columbina] Listeners Cobblemon enregistrés.")
     }

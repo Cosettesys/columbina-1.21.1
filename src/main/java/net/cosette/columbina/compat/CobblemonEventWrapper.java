@@ -1,6 +1,7 @@
 package net.cosette.columbina.compat;
 
 import com.cobblemon.mod.common.api.events.pokemon.PokemonCapturedEvent;
+import com.cobblemon.mod.common.api.events.pokemon.RidePokemonEvent;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class CobblemonEventWrapper {
@@ -27,5 +28,13 @@ public class CobblemonEventWrapper {
     }
     public static String getSpeciesName(PokemonCapturedEvent event) {
         return event.getPokemon().getSpecies().getName();
+    }
+    public static ServerPlayerEntity getPlayer(RidePokemonEvent event) {
+        try {
+            Object player = RidePokemonEvent.class.getMethod("getPlayer").invoke(event);
+            return (ServerPlayerEntity) player;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
