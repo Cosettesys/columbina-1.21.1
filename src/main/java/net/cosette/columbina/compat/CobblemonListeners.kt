@@ -5,7 +5,6 @@ import net.cosette.columbina.Columbina
 import net.cosette.columbina.ColumbinaConfig
 import net.cosette.columbina.team.TeamManager
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 
 object CobblemonListeners {
@@ -63,7 +62,7 @@ object CobblemonListeners {
             val dimensionValue = player.world.registryKey.value
             if (dimensionValue.namespace == "columbina" && dimensionValue.path == "poketopia") {
                 event.cancel()
-                player.sendMessage(Text.literal("§cVous ne pouvez pas monter un Pokémon dans cette dimension."), false)
+                player.sendMessage(Text.literal("§cVous ne pouvez pas monter un Pokémon dans Pokétopia."), false)
             }
         }
         Columbina.LOGGER.info("[Columbina] Listeners Cobblemon enregistrés.")
