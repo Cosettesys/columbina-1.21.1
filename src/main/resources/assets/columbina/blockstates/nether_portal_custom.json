@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "axis=x": { "model": "columbina:block/nether_portal_custom" },
+    "axis=z": { "model": "columbina:block/nether_portal_custom", "y": 90 }
+  }
+}

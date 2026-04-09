@@ -8,6 +8,7 @@ import net.cosette.columbina.network.ShopPayloads;
 import net.cosette.columbina.poketopia.PoketopiaIslandPlacer;
 import net.cosette.columbina.poketopia.PoketopiaManager;
 import net.cosette.columbina.portal.ModBlocks;
+import net.cosette.columbina.portal.NetherPortalCustomBlock;
 import net.cosette.columbina.portal.PoketopiaPortalBlock;
 import net.cosette.columbina.scoreboard.ScoreboardManager;
 import net.cosette.columbina.shop.ShopConfigManager;
@@ -61,6 +62,7 @@ public class Columbina implements ModInitializer {
 				ScoreboardManager.getInstance().updateAllScoreboards();
 			}
 			PoketopiaPortalBlock.tickCooldowns();
+			NetherPortalCustomBlock.tickCooldowns();
 		});
 		ModItems.registerItems();
 		ModBlocks.registerBlocks();
