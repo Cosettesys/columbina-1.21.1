@@ -3,7 +3,8 @@
 	"package": "net.cosette.columbina.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"ExampleClientMixin"
+		"ExampleClientMixin",
+		"PortalRenderLayerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
