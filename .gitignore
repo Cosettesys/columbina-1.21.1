@@ -42,3 +42,4 @@ replay_*.log
 #inutile
 
 libs/
+/src/main/resources/assets/columbina/textures/quests/
