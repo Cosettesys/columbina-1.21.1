@@ -49,7 +49,17 @@ public class ColumbinaConfig {
                     "# Variables : {pokemon}, {points}, {team}, {tags}\n" +
                     "capture_message = \"§a+{points} pts §7pour l'équipe §r{team} §7— capture de §r{pokemon}{tags}{count}\"\n"+
                     "# Si false, les joueurs ne peuvent pas monter un Pokémon dans la dimension Poketopia.\n" +
-                    "poketopia_ride_allowed = false\n";
+                    "poketopia_ride_allowed = false\n" +
+                    "\n" +
+                    "# ── Coffres mystères ─────────────────────────────────────────────────────\n" +
+                    "# Points min/max (inclus) donnés à l'équipe selon la taille du coffre.\n" +
+                    "# Chaque coffre posé n'est utilisable qu'une seule fois, par n'importe qui.\n" +
+                    "chest_petit_min = 5\n" +
+                    "chest_petit_max = 15\n" +
+                    "chest_moyen_min = 20\n" +
+                    "chest_moyen_max = 40\n" +
+                    "chest_grand_min = 50\n" +
+                    "chest_grand_max = 100\n";
     private static ColumbinaConfig INSTANCE;
     private List<String> dailyQuestIds = new ArrayList<>();
     private int safariCost = 500;
@@ -66,6 +76,12 @@ public class ColumbinaConfig {
     public String captureMessage = "§a+{points} pts §7pour l'équipe §r{team} §7— capture de §r{pokemon}{tags}{count}";
     public boolean poketopiaRideAllowed = false;
     public int captureLimitPerSpecies = 3;
+    public int chestPetitMin = 5;
+    public int chestPetitMax = 15;
+    public int chestMoyenMin = 20;
+    public int chestMoyenMax = 40;
+    public int chestGrandMin = 50;
+    public int chestGrandMax = 100;
     private ColumbinaConfig() {}
     public static ColumbinaConfig getInstance() {
         if (INSTANCE == null) load();
@@ -112,6 +128,13 @@ public class ColumbinaConfig {
         addMissingKey(config, "poketopia_ride_allowed",
                 "\n# Si false, les joueurs ne peuvent pas monter un Pokémon dans la dimension Poketopia.\n" +
                         "poketopia_ride_allowed = false\n");
+        addMissingKey(config, "chest_petit_min",
+                "\n# ── Coffres mystères ─────────────────────────────────────────────────────\n" +
+                        "# Points min/max (inclus) donnés à l'équipe selon la taille du coffre.\n" +
+                        "# Chaque coffre posé n'est utilisable qu'une seule fois, par n'importe qui.\n" +
+                        "chest_petit_min = 5\nchest_petit_max = 15\n" +
+                        "chest_moyen_min = 20\nchest_moyen_max = 40\n" +
+                        "chest_grand_min = 50\nchest_grand_max = 100\n");
         INSTANCE.dailyQuestIds        = config.getOrElse("daily_quest_ids", new ArrayList<>());
         INSTANCE.safariCost           = config.getOrElse("safari_cost", 500);
         INSTANCE.cobbleSafariCost     = config.getOrElse("cobblesafari_cost", 300);
@@ -128,6 +151,12 @@ public class ColumbinaConfig {
                 "§a+{points} pts §7pour l'équipe §r{team} §7— capture de §r{pokemon}{tags}{count}");
         INSTANCE.captureLimitPerSpecies = config.getOrElse("capture_limit_per_species", 3);
         INSTANCE.poketopiaRideAllowed = config.getOrElse("poketopia_ride_allowed", false);
+        INSTANCE.chestPetitMin = config.getOrElse("chest_petit_min", 5);
+        INSTANCE.chestPetitMax = config.getOrElse("chest_petit_max", 15);
+        INSTANCE.chestMoyenMin = config.getOrElse("chest_moyen_min", 20);
+        INSTANCE.chestMoyenMax = config.getOrElse("chest_moyen_max", 40);
+        INSTANCE.chestGrandMin = config.getOrElse("chest_grand_min", 50);
+        INSTANCE.chestGrandMax = config.getOrElse("chest_grand_max", 100);
         config.close();
         Columbina.LOGGER.info("[Columbina] Config chargée.");
     }
@@ -150,4 +179,10 @@ public class ColumbinaConfig {
     public int    getPoketopiaSpawnZ()        { return poketopiaSpawnZ; }
     public String getPoketopiaSpawnFacing()   { return poketopiaSpawnFacing; }
     public int    getPoketopiaVoidY()         { return poketopiaVoidY; }
+    public int getChestPetitMin()             { return chestPetitMin; }
+    public int getChestPetitMax()             { return chestPetitMax; }
+    public int getChestMoyenMin()             { return chestMoyenMin; }
+    public int getChestMoyenMax()             { return chestMoyenMax; }
+    public int getChestGrandMin()              { return chestGrandMin; }
+    public int getChestGrandMax()              { return chestGrandMax; }
 }

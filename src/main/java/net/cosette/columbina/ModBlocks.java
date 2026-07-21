@@ -1,5 +1,6 @@
 package net.cosette.columbina;
 
+import net.cosette.columbina.mysterychest.MysteryChestBlock;
 import net.cosette.columbina.portal.*;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -34,6 +35,39 @@ public class ModBlocks {
                             .sounds(BlockSoundGroup.GLASS)
                             .luminance(state -> 11)
                             .dropsNothing()
+            )
+    );
+    public static final MysteryChestBlock MYSTERY_CHEST_PETIT = registerBlock(
+            "mystery_chest_petit",
+            new MysteryChestBlock(
+                    AbstractBlock.Settings.create()
+                            .mapColor(MapColor.BROWN)
+                            .strength(-1.0f, 3600000.0f)
+                            .sounds(BlockSoundGroup.WOOD)
+                            .dropsNothing(),
+                    MysteryChestBlock.ChestSize.PETIT
+            )
+    );
+    public static final MysteryChestBlock MYSTERY_CHEST_MOYEN = registerBlock(
+            "mystery_chest_moyen",
+            new MysteryChestBlock(
+                    AbstractBlock.Settings.create()
+                            .mapColor(MapColor.BROWN)
+                            .strength(-1.0f, 3600000.0f)
+                            .sounds(BlockSoundGroup.WOOD)
+                            .dropsNothing(),
+                    MysteryChestBlock.ChestSize.MOYEN
+            )
+    );
+    public static final MysteryChestBlock MYSTERY_CHEST_GRAND = registerBlock(
+            "mystery_chest_grand",
+            new MysteryChestBlock(
+                    AbstractBlock.Settings.create()
+                            .mapColor(MapColor.BROWN)
+                            .strength(-1.0f, 3600000.0f)
+                            .sounds(BlockSoundGroup.WOOD)
+                            .dropsNothing(),
+                    MysteryChestBlock.ChestSize.GRAND
             )
     );
     private static <T extends Block> T registerBlock(String name, T block) {
