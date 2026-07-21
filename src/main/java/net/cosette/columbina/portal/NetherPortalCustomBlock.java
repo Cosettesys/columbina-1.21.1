@@ -65,14 +65,9 @@ public class NetherPortalCustomBlock extends Block {
         COOLDOWNS.put(player.getUuid(), 60);
         ServerWorld nether = player.getServer().getWorld(NETHER_KEY);
         if (nether == null) return;
-        BlockPos netherPos = new BlockPos(
-                (int) (player.getX() / 8.0),
-                (int) player.getY(),
-                (int) (player.getZ() / 8.0)
-        );
         TeleportTarget target = new TeleportTarget(
                 nether,
-                Vec3d.ofBottomCenter(netherPos),
+                new Vec3d(0.5, 60.0, 0.5),
                 Vec3d.ZERO,
                 player.getYaw(),
                 player.getPitch(),

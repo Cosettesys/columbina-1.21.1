@@ -65,6 +65,14 @@ object CobblemonListeners {
                 player.sendMessage(Text.literal("§cVous ne pouvez pas monter un Pokémon dans Pokétopia."), false)
             }
         }
+        CobblemonEvents.ENTITY_SPAWN.subscribe { event ->
+            if (!CobblemonEventWrapper.isPokemonEntity(event)) return@subscribe
+            val world = CobblemonEventWrapper.getSpawnWorld(event) ?: return@subscribe
+            val dimensionValue = world.registryKey.value
+            if (dimensionValue.namespace == "columbina" && dimensionValue.path == "poketopia") {
+                event.cancel()
+            }
+        }
         Columbina.LOGGER.info("[Columbina] Listeners Cobblemon enregistrés.")
     }
 }

@@ -1,6 +1,6 @@
-package net.cosette.columbina.portal;
+package net.cosette.columbina;
 
-import net.cosette.columbina.Columbina;
+import net.cosette.columbina.portal.*;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.MapColor;

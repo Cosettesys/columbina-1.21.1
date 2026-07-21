@@ -1,6 +1,6 @@
 package net.cosette.columbina.mixin.client;
 
-import net.cosette.columbina.portal.ModBlocks;
+import net.cosette.columbina.ModBlocks;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.BlockModels;
