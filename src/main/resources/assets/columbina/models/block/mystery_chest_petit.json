@@ -1,6 +1,30 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "credit": "Pokéchest Petit",
+  "parent": "block/block",
   "textures": {
-    "all": "columbina:block/mystery_chest_petit"
-  }
+    "0": "columbina:block/pokeball",
+    "1": "columbina:block/pokeball_button",
+    "particle": "columbina:block/pokeball"
+  },
+  "elements": [
+    {
+      "from": [5, 0, 5],
+      "to": [11, 6, 11],
+      "faces": {
+        "north": {"uv": [0, 7, 9, 16], "texture": "#0"},
+        "east": {"uv": [0, 0, 5, 5], "texture": "#0"},
+        "south": {"uv": [11, 5, 16, 10], "texture": "#0"},
+        "west": {"uv": [0, 0, 5, 5], "texture": "#0"},
+        "up": {"uv": [11, 10, 16, 15], "texture": "#0"},
+        "down": {"uv": [11, 0, 16, 5], "texture": "#0"}
+      }
+    },
+    {
+      "from": [7.25, 2.25, 4.75],
+      "to": [8.75, 3.75, 5],
+      "faces": {
+        "north": {"uv": [7.25, 12.25, 8.75, 13.75], "texture": "#1"}
+      }
+    }
+  ]
 }

@@ -43,3 +43,9 @@ replay_*.log
 
 libs/
 /src/main/resources/assets/columbina/textures/quests/
+/src/main/resources/assets/columbina/textures/block/honorball.png
+/src/main/resources/assets/columbina/textures/block/loveball.png
+/src/main/resources/assets/columbina/textures/block/moonball.png
+/src/main/resources/assets/columbina/textures/block/pokeball.png
+/src/main/resources/assets/columbina/textures/block/pokeball_button.png
+/src/main/resources/assets/columbina/textures/block/quickball.png

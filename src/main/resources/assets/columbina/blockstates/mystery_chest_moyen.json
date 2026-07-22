@@ -1,5 +1,8 @@
 {
   "variants": {
-    "": { "model": "columbina:block/mystery_chest_moyen" }
+    "facing=north": { "model": "columbina:block/mystery_chest_moyen" },
+    "facing=east":  { "model": "columbina:block/mystery_chest_moyen", "y": 90 },
+    "facing=south": { "model": "columbina:block/mystery_chest_moyen", "y": 180 },
+    "facing=west":  { "model": "columbina:block/mystery_chest_moyen", "y": 270 }
   }
 }
